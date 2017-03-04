@@ -26,7 +26,7 @@
           <ul class="story-stats-sm">
             <li> <strong>Category: </strong>{{ comment.post_itself.category }}</li>
             <li> <strong>Date: </strong>{{ comment.comment_date|date:'M d, Y' }}</li>
-            <li> <strong>Upvotes: </strong>{{ comment.likes }}</li>
+            <li> <strong>Upvotes: </strong>{{ comment.post_itself.storyupvotes_set.count }}</li>
 
           </ul>
         </div>

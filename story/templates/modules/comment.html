@@ -30,7 +30,7 @@
         <img src="{% static 'img/avatars/maleuser.png' %}" />
       </div>
       <div class="comment-details">
-        <a href="{% url 'pplistPage' com.commentator %}"> <strong>{{ com.commentator }}</strong></a> posted a comment {{ com.comment_date|timesince }} ago - <span class="highlighted">{{ com.likes }} like</span>
+        <a href="{% url 'pplistPage' com.commentator %}"> <strong>{{ com.commentator }}</strong></a> posted a comment {{ com.comment_date|timesince }} ago - <span class="highlighted">{{ com.commentlike_set.count }} like</span>
       </div>
       <div class="comment-area">
         {{ com.comment }}
@@ -41,7 +41,6 @@
         </button>
       </div>
     </div>
-
   {% endfor %}
 
 </div>
