@@ -1,0 +1,58 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  <meta charset='utf-8' />
+  <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+  <link href="https://fonts.googleapis.com/css?family=Asap:700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Fira+Sans+Extra+Condensed" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
+  <link rel="stylesheet" style="text/css" href="{% static 'css/style.css' %}" />
+  <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+  <script src=" {% static 'js/jquery-1.10.2.min.js' %}"></script>
+  <script src=" {% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+  <script type="text/javascript" src=" {% static 'js/bootsnipp.js'%} "></script>
+  {% block scriptContainer %}{% endblock %}
+</head>
+
+<body>
+
+  {% include "modules/navbar.html" %}
+
+  <div class="main-container">
+
+    <div class="middle-content">
+
+      <div class="left-container">
+        {% block postContainer %}{% endblock %}
+        {% block commentContainer %}{% endblock %}
+        {% block notifyContainer %}{% endblock %}
+        {% block helpContainer %}{% endblock %}
+        {% block aboutContainer %}{% endblock %}
+        {% block profileContainer %}{% endblock %}
+        {% block storyForm %}{% endblock %}
+      </div>
+
+      <div class="right-container">
+        {% block profile-details %}{% endblock %}
+        {% include "modules/right_content.html" %}
+      </div>
+
+    </div>
+
+    <div class="pg-container">
+      {% block pagination %}
+      {% endblock %}
+    </div>
+
+  </div>
+  <footer>
+    <p>
+      All Right Reserved - 2017 <br> Orhan Odabasi
+    </p>
+  </footer>
+
+</body>
+</html>

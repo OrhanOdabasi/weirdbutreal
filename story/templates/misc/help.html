@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Help - Frequently Asked Questions
+{% endblock %}
+
+{% block helpContainer %}
+  <div class="post-container">
+    <div class="help-container">
+      <h3 class="page-title">FAQ - Frequently Asked Questions</h3>
+      <ul class="faq">
+        <li>
+          <h4>
+            <span class="glyphicon glyphicon-question-sign" ></span>
+            What is the purpose of this site?
+          </h4>
+          <p>
+            You can share your weird memories or any story which you've heard of somehow.
+            Let people read your stories, so maybe you can be the weirdest person of all time :)
+          </p>
+        </li>
+        <li>
+          <h4>
+            <span class="glyphicon glyphicon-question-sign" ></span>
+            Are these stories real?
+          </h4>
+          <p>
+            Actually, we would never know. This is totally up to you.
+            You are the one who makes them real or not with your votes.
+          </p>
+        </li>
+        <li>
+          <h4>
+            <span class="glyphicon glyphicon-question-sign" ></span>
+            How can i share my story?
+          </h4>
+          <p>
+            You need to <a href="{% url 'registerPage' %}">sign up</a> first, then click 'Share Story' button. That's it.
+          </p>
+        </li>
+        <li>
+          <h4>
+            <span class="glyphicon glyphicon-question-sign" ></span>
+            What if someone steals my story and repost it?
+          </h4>
+          <p>
+            Some stories might be similar. You would experience the same shit.
+            But if you insist that someone copy-paste your story, you can report it so we can remove.
+          </p>
+        </li>
+        <li>
+          <h4>
+            <span class="glyphicon glyphicon-question-sign" ></span>
+            My story has much more upvotes than any other posts but mine is not in top list?
+          </h4>
+          <p>
+            Popularity of a post is not based on only upvote count. We have a 'weird' algorithm for listing.
+          </p>
+        </li>
+        <li>
+          <h4>
+            <span class="glyphicon glyphicon-question-sign" ></span>
+            I have an idea that makes it better!
+          </h4>
+          <p>
+            If you have suggestions, you can contact me <a href="mailto:0rh.odabasi+wbrhelp@gmail.com">here</a>
+          </p>
+        </li>
+        <li>
+          <h4>
+            <span class="glyphicon glyphicon-question-sign" ></span>
+            There is a disturbing bug in your site, what should i do?
+          </h4>
+          <p>
+            Don't be a bad guy, just report us from <a href="mailto:0rh.odabasi+wbrbug@gmail.com">here</a>
+          </p>
+        </li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}

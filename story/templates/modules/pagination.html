@@ -1,0 +1,26 @@
+{% load static %}
+
+
+<nav aria-label="Page navigation" class="pg-container" >
+  <ul class="pagination">
+    {% if stories.has_other_pages %}
+      {% if stories.has_previous %}
+        <li>
+          <a href="?page={{stories.previous_page_number}}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+      {% endif %}
+
+      <li><a href="?page={{stories.number}}">{{stories.number}}</a></li>
+
+      {% if stories.has_next %}
+        <li>
+          <a href="?page={{stories.next_page_number}}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      {% endif %}
+    {% endif %}
+  </ul>
+</nav>

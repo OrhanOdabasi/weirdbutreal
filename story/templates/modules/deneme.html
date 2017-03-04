@@ -1,0 +1,54 @@
+{% load static %}
+
+{% for story in stories %}
+  <div class="post-container">
+    <div class="post-elements">
+      <h1 class="post-headline">
+        <span class="glyphicon glyphicon-triangle-right"></span>
+        <span class="post-heading">
+          <a href="{% url 'storyPage' story.urlcode %}" target="<_blank">{{ story.title }}</a>
+        </span>
+      </h1>
+    </div>
+    <hr class="divider" />
+    <div class="post-elements">
+      <div class="post-content">
+        {{ story.text }}
+
+      </div>
+    </div>
+    <hr class="divider" />
+    <div class="post-elements" id="post-info">
+      <div class="post-share">
+        <ul class="share-buttons">
+          <li><a href="#" title="Share on Facebook" target="_blank"><img alt="Share on Facebook" src=" {% static 'img/Facebook.png' %}"></a></li>
+          <li><a href="#" target="_blank" title="Tweet"><img alt="Tweet" src=" {% static 'img/Twitter.png' %}"></a></li>
+          <li><a href="#" target="_blank" title="Share on Google+"><img alt="Share on Google+" src=" {% static 'img/Google+.png' %}"></a></li>
+          <li><a href="#" target="_blank" title="Post to Tumblr"><img alt="Post to Tumblr" src=" {% static 'img/Tumblr.png' %}"></a></li>
+          <li><a href="#" target="_blank" title="Pin it"><img alt="Pin it" src=" {% static 'img/Pinterest.png' %}"></a></li>
+          <li><a href="#" target="_blank" title="Submit to Reddit"><img alt="Submit to Reddit" src=" {% static 'img/Reddit.png' %}"></a></li>
+          <li><a href="#" target="_blank" title="Send email"><img alt="Send email" src=" {% static 'img/Email.png' %}"></a></li>
+        </ul>
+      </div>
+      <div class="post-timestamp">
+        added by <a href="#"><strong>{{ story.author }}</strong></a> in {{ story.created }} -&nbsp&nbsp
+        <a href="
+        {% if story.category == 'Funny' %}
+          {% url 'funnyPage' %}
+        {% elif story.category == 'Mysterious' %}
+          {% url 'mysteriousPage' %}
+        {% endif %}"><strong>#{{ story.category }}</strong></a>
+      </div>
+    </div>
+    <div class="post-elements">
+      <div class="post-stats">
+        <span class="highlighted">{{ story.upvotes }}</span> upvotes
+        <span class="highlighted">{{ story.storycomment_set.count }}</span> <a href="{% url 'storyPage' story.urlcode %}#comments">comments</a>
+      </div>
+      <div class="post-buttons">
+        <button type="button" class="btn btn-success">Weird as fuck!</button>
+        <button type="button" class="btn btn-danger">Nope! Usual stuff</button>
+      </div>
+    </div>
+  </div>
+{% endfor %}

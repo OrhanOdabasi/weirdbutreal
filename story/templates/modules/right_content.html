@@ -1,0 +1,49 @@
+
+<form action="{% url 'storyFormPage' %}" method="get">
+  <button type="submit" class="btn btn-info btn-lg btn-block" {% url 'storyFormPage' %}>
+    <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Share Story</button>
+</form>
+<div class="right-content-wrapper post-container">
+  <div class="right-wrapper-heading">
+    <span class="glyphicon glyphicon-fire" id="hot-headline"></span>
+    <a href="{% url 'toplistPage' 'weirdests' %}" class="hits-heading">Weirdest Stories</a>
+  </div>
+  <ul class="right-headlines">
+    {% for latest in latest_a %}
+      <li>
+        <span class="glyphicon glyphicon-chevron-right" id="headline-list"></span>
+        <a href="{{ latest.get_absolute_url }}" class="hdlines">{{ latest.title }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="right-content-wrapper post-container">
+  <div class="right-wrapper-heading">
+    <span class="glyphicon glyphicon-fire" id="hot-headline"></span>
+    <a href="{% url 'toplistPage' 'mystery' %}" class="hits-heading">Mysterious and Weird</a>
+  </div>
+  <ul class="right-headlines">
+    {% for latest in latest_m %}
+      <li>
+        <span class="glyphicon glyphicon-chevron-right" id="headline-list"></span>
+        <a href="{{ latest.get_absolute_url }}" class="hdlines">{{ latest.title }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="right-content-wrapper post-container">
+  <div class="right-wrapper-heading">
+    <span class="glyphicon glyphicon-fire" id="hot-headline"></span>
+    <a href="{% url 'toplistPage' 'fun' %}" class="hits-heading">Funny But Still Weird</a>
+  </div>
+  <ul class="right-headlines">
+    {% for latest in latest_f %}
+      <li>
+        <span class="glyphicon glyphicon-chevron-right" id="headline-list"></span>
+        <a href="{{ latest.get_absolute_url }}" class="hdlines">{{ latest.title }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

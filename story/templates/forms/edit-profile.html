@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Change Your Profile Details
+{% endblock %}
+
+
+{% block profile-details %}
+  {% include "modules/profile_detail_menu.html" %}
+{% endblock %}
+
+
+{% block profileContainer %}
+  <div class="post-container">
+    <div class="auth-form">
+
+      <h3 class="page-title">Edit Your Profile --{{ request.user }}--</h3>
+      {% if messages %}
+        {% for message in messages  %}
+          <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST" action=""> {% csrf_token %}
+        {% for field in form %}
+        <strong>{{ field.label }}</strong>
+        {{ field }}
+        {% endfor %}
+        <!--{#
+        {% for field in form2 %}
+        <strong>{{ field.label }}</strong>
+        {% if field.label == 'Birthday' %}- Format dd/mm/YYYY{% endif %}
+        {{ field }}
+        {% endfor %}
+        #}-->
+        <button type="submit" class="btn btn-primary btn-lg btn-block" id="auth-button">Save Changes</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

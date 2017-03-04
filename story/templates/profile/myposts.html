@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+  List of Your Posts
+{% endblock %}
+
+{% block profile-details %}
+  {% include "modules/profile_detail_menu.html" %}
+{% endblock %}
+
+{% block postContainer %}
+  {% if messages %}
+    {% for message in messages  %}
+      <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  <h3 class="page-title">List of My Stories</h3>
+  <div class="post-container">
+    {% for story in stories  %}
+      <div class="narrow-story">
+        <div>
+          <h1 class="post-headline post-heading">
+            <span class="glyphicon glyphicon-triangle-right"></span>
+            <a href="{{ story.get_absolute_url }}" target="<_blank">{{ story.title }}</a>
+          </h1>
+        </div>
+        <div>
+          <ul class="story-stats-sm">
+            <li> <strong>Category: </strong>{{ story.category }}</li>
+            <li> <strong>Date: </strong>{{ story.modified|date:'M d, Y' }}</li>
+            <li> <strong>Upvotes: </strong>{{ story.storyupvotes_set.count }}</li>
+            <li> <strong>Comments: </strong>{{ story.storycomment_set.count }}</li>
+          </ul>
+        </div>
+      </div>
+      <hr style="width:100%;">
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{% block pagination %}
+  {% include "modules/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,18 @@
+[REMOVED] Dont let user leave blank forms (form validations)
+[REMOVED] Activate all buttons
+[REMOVED] Activate share buttons
+[REMOVED] Email confirmation system for changing profile details
+[REMOVED] Delete post system
+[REMOVED] Downvotes menu
+[REMOVED] Right top list bar refreshes only one time when server starts
+[REMOVED] Profile up/downvotes list, update up/downvotes numbers
+[REMOVED] All pages - down/upvotes number update
+Comment like button activate
+Comment Like fields not correct
+Notification system with signal decorators
+Set database time to UTC and convert them in template
+Email confirmation when field was changed
+Password update, reset
+Email update, reset
+Downvote & upvote remove
+Remove language option

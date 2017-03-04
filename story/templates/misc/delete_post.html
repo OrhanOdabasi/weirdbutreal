@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Delete Post:
+{% endblock %}
+
+
+{% block postContainer %}
+  <div class="post-container">
+    <h3 class="page-title">
+      Delete Your Post
+    </h3>
+    <h4>Post Title</h4>
+    <p>{{ post.title }}</p>
+    <h4>Statistics</h4>
+    <p>Post Date: {{ post.created|date:"d M Y" }}</p>
+    <p>Post Upvotes: {{ post.upvotes }}</p>
+    <p>Post Downvotes:  {{ post.downvotes }}</p>
+    <p>Post Comments: {{ post.storycomment_set.count }}</p>
+    <br>
+    {% if messages %}
+      {% for message in messages  %}
+        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form action="/delete-post/" method="POST">{% csrf_token %}
+      <input type="checkbox" name="confirm" value="confirmed"> I want to delete my story. (You <strong>cannot</strong> undone it.)<br>
+      <input type="hidden" name="shortcode" value="{{ post.urlcode }}">
+      <div class="form-button">
+        <input type="submit" class="btn btn-danger" value="Delete Story">
+      </div>
+    </form>
+  </div>
+{% endblock %}

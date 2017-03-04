@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Most Popular Stories in {{ cat_name }} Category
+{% endblock title %}
+
+{% block postContainer %}
+  {% include "modules/post_list.html" %}
+{% endblock %}
+
+{% block pagination %}
+  {% include "modules/pagination.html" %}
+{% endblock %}

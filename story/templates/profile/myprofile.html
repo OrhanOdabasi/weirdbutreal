@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Profile Home Page
+{% endblock %}
+
+
+{% block profile-details %}
+  {% include "modules/profile_detail_menu.html" %}
+{% endblock %}
+
+
+{% block profileContainer %}
+  <div class="post-container">
+    <h3 class="page-title">User Profile</h3>
+    <div class="profile-photo">
+      <img src="{% static 'img/avatars/maleuser.png' %}" />
+    </div>
+    <div class="profile-detail">
+      <div lass="profile-detail-sub">
+        fsfsf
+      </div>
+      <div class="profile-detail-sub">
+
+        <p><strong>Username: </strong> orhan</p>
+      </div>
+    </div>
+
+
+  </div>
+{% endblock %}

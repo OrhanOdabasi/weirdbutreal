@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Search Post
+{% endblock %}
+
+
+{% block postContainer %}
+  <div class="post-container">
+    <h3 class="page-title">Search a Story</h3>
+    {% if form.errors %}
+      <div class="alert alert-warning" role="alert">
+        {{ form.errors }}
+      </div>
+    {% endif %}
+    <form class="form-container" method="GET" action="">
+      {% for field in form  %}
+      <div class="form-group-container">
+        <div class="form-element-label">
+          {{ field.label_tag}}
+        </div>
+        <div class="form-element-field">
+          {{ field }}
+        </div>
+      </div>
+      {% endfor %}
+      <div class="form-button">
+        <input type="submit" class="btn btn-success" value="Search">
+      </div>
+    </form>
+  </div>
+  {% if stories %}
+    {% include "modules/post_list.html" %}
+  {% else %}
+    <div>
+      <p>No way! We don't have a weird story about "{{ query }}".</p>
+      <p>Maybe you haven't typed it right. Maybe strange things happened!</p>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block pagination %}
+  <nav aria-label="Page navigation" class="pg-container" >
+    <ul class="pagination">
+      {% if stories.has_other_pages %}
+        {% if stories.has_previous %}
+          <li>
+            <a href="?page={{stories.previous_page_number}}&search_q={{ query }}" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        {% endif %}
+
+        <li><a href="?page={{stories.number}}">{{stories.number}}</a></li>
+
+        {% if stories.has_next %}
+          <li>
+            <a href="?page={{stories.next_page_number}}&search_q={{ query }}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        {% endif %}
+      {% endif %}
+    </ul>
+  </nav>{% endblock %}

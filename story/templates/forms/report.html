@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Report a Post
+{% endblock %}
+
+{% block postContainer %}
+  <div class="post-container">
+    <h3 class="page-title">Report Post</h3>
+    <p><strong>Report ID:</strong> {{ reportid }}</p>
+    <p><strong>Post Title:</strong> {{ post_title }}</p>
+    {% if messages %}
+      {% for message in messages  %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% if not messages %}
+    <form class="form-container" method="post" action=""> {% csrf_token %}
+      {% for field in form  %}
+      <div class="form-group-container">
+        <div class="form-element-label">
+          {{ field.label_tag}}
+        </div>
+        <div class="form-element-field">
+          {{ field }}
+        </div>
+      </div>
+      {% endfor %}
+      <div class="form-button">
+        <input type="submit" class="btn btn-success" value="Report Post">
+      </div>
+    </form>
+  {% endif %}
+  </div>
+{% endblock %}

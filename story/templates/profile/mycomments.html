@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}
+  My Comments
+{% endblock %}
+
+{% block profile-details %}
+  {% include "modules/profile_detail_menu.html" %}
+{% endblock %}
+
+{% block postContainer %}
+  <h3 class="page-title">List of My Comments</h3>
+  <div class="post-container">
+    {% for comment in stories  %}
+      <div class="narrow-story">
+        <div>
+          <h1 class="post-headline post-heading">
+            <span class="glyphicon glyphicon-triangle-right"></span>
+            <a href="{{ comment.post_itself.get_absolute_url }}" target="<_blank">{{ comment.post_itself.title }}</a>
+          </h1>
+        </div>
+        <div >
+          <p>{{comment.comment}}</p>
+        </div>
+        <div>
+          <ul class="story-stats-sm">
+            <li> <strong>Category: </strong>{{ comment.post_itself.category }}</li>
+            <li> <strong>Date: </strong>{{ comment.comment_date|date:'M d, Y' }}</li>
+            <li> <strong>Upvotes: </strong>{{ comment.likes }}</li>
+
+          </ul>
+        </div>
+      </div>
+      <hr style="width:100%;">
+    {% endfor %}
+  </div>
+{% endblock %}
+
+
+{% block pagination %}
+  {% include "modules/pagination.html" %}
+{% endblock %}

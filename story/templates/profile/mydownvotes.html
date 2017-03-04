@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+  My Downvotes
+{% endblock %}
+
+{% block profile-details %}
+  {% include "modules/profile_detail_menu.html" %}
+{% endblock %}
+
+{% block postContainer %}
+  <h3 class="page-title">List of My Downvotes</h3>
+  <div class="post-container">
+    {% for downvote in my_downvotes  %}
+      <div class="narrow-story">
+        <div>
+          <h1 class="post-headline post-heading">
+            <span class="glyphicon glyphicon-triangle-right"></span>
+            <a href="{{ downvote.story.get_absolute_url }}" target="<_blank">{{ downvote.story.title }}</a>
+          </h1>
+        </div>
+        <div>
+          <ul class="story-stats-sm">
+            <li> <strong>Category: </strong>{{ downvote.story.category }}</li>
+            <li> <strong>Total Upvotes: </strong>{{ downvote.story.downvotes }}</li>
+          </ul>
+        </div>
+      </div>
+      <hr style="width:100%;">
+    {% endfor %}
+  </div>
+{% endblock %}
+
+
+{% block pagination %}
+  {% include "modules/pagination.html" %}
+{% endblock %}

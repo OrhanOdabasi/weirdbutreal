@@ -1,0 +1,47 @@
+{% load static %}
+
+
+
+
+<div class="comment-container" id="comments">
+
+  {# Comment Form #}
+  <div class="comment-post">
+    {% if not request.user.is_authenticated %}
+      <p>You need to <a href="{% url 'loginPage' %}">log in</a> to leave a comment.</p>
+    {% else %}
+      <div>
+        <form action="" method="post"> {% csrf_token %}
+          <div class="form-group-container">
+            {{ commentform }}
+          </div>
+          <div class="form-group-container">
+            <input type="submit" class="btn btn-success" style="float:right;" value="Post Story">
+          </div>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  {# Comment Section #}
+  {% for com in comments  %}
+    <div class="single-comment">
+      <div class="comment-photo">
+        <img src="{% static 'img/avatars/maleuser.png' %}" />
+      </div>
+      <div class="comment-details">
+        <a href="{% url 'pplistPage' com.commentator %}"> <strong>{{ com.commentator }}</strong></a> posted a comment {{ com.comment_date|timesince }} ago - <span class="highlighted">{{ com.likes }} like</span>
+      </div>
+      <div class="comment-area">
+        {{ com.comment }}
+      </div>
+      <div class="comment-like-buttons">
+        <button type="button" class="btn btn-default btn-sm">
+          <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Like
+        </button>
+      </div>
+    </div>
+
+  {% endfor %}
+
+</div>

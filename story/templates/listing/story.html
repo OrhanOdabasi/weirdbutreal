@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+WeirdButReal - {{ post.title }}
+{% endblock %}
+
+{% block scriptContainer %}
+  <script type="text/javascript">
+
+    // This function controls vote status and the button's color.
+    function buttonVote() {
+        // This request accesses vote db
+        // returns a json (urlcode, voted_down, voted_up)
+        // changes buttons' color
+        $.ajax({
+          type: 'GET',
+          url: '/ajax/vote/{{ post.urlcode }}/',
+          datatype: 'json',
+          success: function(data) {
+            if (data['voted_up']) {
+              $('#button-up').css({
+                backgroundColor: '#0f3c51',
+                color: 'white',
+              });
+              $('#button-down').css({
+                backgroundColor: '#fff',
+                color: '#333',
+              });
+            }
+            if (data['voted_down']) {
+              $('#button-down').css({
+                backgroundColor: '#0f3c51',
+                color: 'white',
+              });
+              $('#button-up').css({
+                backgroundColor: '#fff',
+                color: '#333',
+              });
+
+            }
+          }
+        });
+    }
+
+    // initializing jquery
+    $(document).ready(function() {
+      {% if request.user.is_authenticated %}
+        buttonVote();
+      {% endif %}
+
+      // this method controls voting system
+      $('.vote-button').on('click', function() {
+        var bttn = $(this).attr('id')
+        // post request is being sent
+        $.ajax({
+          type: 'POST',
+          url: '/ajax/vote/{{ post.urlcode }}/',
+          data: {
+            bttn: bttn,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+          },
+          success: function(data) {
+            if (data['auth']) {
+              console.log("Login Authantication granted");
+              if (data['resp_code'] === 'exists') {
+                $('#'+bttn).popover('toggle');
+              }
+              if (data['resp_code'] === 'error') {
+                $('#'+bttn).popover('toggle', content='Server side error! Report this error, please.');
+              }
+              if (data['resp_code'] === 'upvoted' || data['resp_code'] === 'downvoted') {
+                buttonVote();
+              }
+            }
+            else {
+              $('.post-buttons').popover('toggle');
+            }
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block postContainer %}
+  <div class="post-container">
+    {% if messages %}
+      {% for message in messages  %}
+        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    <div class="post-elements">
+      <h1 class="post-headline">
+        <span class="glyphicon glyphicon-triangle-right"></span>
+        <span class="post-heading">
+          {{ post.title }}
+        </span>
+      </h1>
+    </div>
+    <hr class="divider" />
+    <div class="post-elements">
+      <div class="post-content">
+        {{ post.text|linebreaksbr }}
+      </div>
+    </div>
+    <hr class="divider" />
+    <div class="post-elements" id="post-info">
+      <div class="post-share">
+        <ul class="share-buttons">
+          <li><a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" title="Share on Facebook" target="_blank"><img alt="Share on Facebook" src=" {% static 'img/shares/Facebook.png' %}"></a></li>
+          <li><a href="http://twitter.com/share?url={{request.build_absolute_uri }}&text={{ story.title }}&hashtags=weirdbutreal" target="_blank" title="Tweet"><img alt="Tweet" src=" {% static 'img/shares/Twitter.png' %}"></a></li>
+          <li><a href="https://plus.google.com/share?url={{ request.build_absolute_uri }}" target="_blank" title="Share on Google+"><img alt="Share on Google+" src=" {% static 'img/shares/Google+.png' %}"></a></li>
+          <li><a href="https://reddit.com/submit?url={{ request.build_absolute_uri }}&title={{ story.text }}" target="_blank" title="Submit to Reddit"><img alt="Submit to Reddit" src=" {% static 'img/shares/Reddit.png' %}"></a></li>
+          <li><a href="mailto:?subject={{ story.title }}&body={{ request.build_absolute_uri }}" target="_blank" title="Send email"><img alt="Send email" src=" {% static 'img/shares/Email.png' %}"></a></li>
+        </ul>
+      </div>
+      <div class="post-timestamp">
+        added by <a href="{% url 'pplistPage' post.author %}"><strong>{{ post.author }}</strong></a> in {{ post.created }} -&nbsp&nbsp<a href="
+        {% if post.category == 'Funny' %}
+            {% url 'funnyPage' %}
+        {% elif post.category == 'Mysterious' %}
+            {% url 'mysteriousPage' %}
+        {% endif %}"><strong>#{{ post.category }}</strong></a>
+        {% if request.user == post.author %}
+          |> <a href="{% url 'deleteconfirmPage' post.urlcode %}" style="color:red;"><strong>Delete Post</strong></a> <|
+        {% endif %}
+      </div>
+    </div>
+    <div class="post-elements">
+      <div class="post-stats">
+        <p>
+          <span class="highlighted">{{ post.upvotes }}</span> upvotes
+          <span class="highlighted">{{ post.storycomment_set.count }}</span> comments
+        </p>
+      </div>
+      <div class="post-buttons" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-content="You need to login to vote.">
+        <button id="button-up" type="button" class="btn btn-default vote-button" data-placement="bottom" data-trigger="focus" data-content="You've already upvoted."><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> Upvote</button>
+        <button id="button-down" type="button" class="btn btn-default vote-button" data-placement="bottom" data-trigger="focus" data-content="You've already downvoted."><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span> Downvote</button>
+      </div>
+    </div>
+    <div style="float:right; padding-right:5px; font-size:12px;">
+      <a href="{% url 'reportPage' post.urlcode %}">REPORT</a>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block commentContainer %}
+  {% include "modules/comment.html" %}
+{% endblock %}

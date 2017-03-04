@@ -1,0 +1,138 @@
+{% load static %}
+
+{% block scriptContainer %}
+  <script type="text/javascript">
+
+    // This function controls vote status and the button's color.
+    function buttonVote(urlcode) {
+        // This request accesses vote db
+        // returns a json (urlcode, voted_down, voted_up)
+        // changes buttons' color
+        $.ajax({
+          type: 'GET',
+          url: '/ajax/vote/'+ urlcode +'/',
+          datatype: 'json',
+          success: function(data) {
+            if (data['voted_up']) {
+              $("button[id='button-up'][data-story='" + urlcode + "']").css({
+                backgroundColor: '#0f3c51',
+                color: 'white',
+              });
+              $("button[id='button-down'][data-story='" + urlcode + "']").css({
+                backgroundColor: '#fff',
+                color: '#333',
+              });
+            }
+            if (data['voted_down']) {
+              $("button[id='button-down'][data-story='" + urlcode + "']").css({
+                backgroundColor: '#0f3c51',
+                color: 'white',
+              });
+              $("button[id='button-up'][data-story='" + urlcode + "']").css({
+                backgroundColor: '#fff',
+                color: '#333',
+              });
+
+            }
+          }
+        });
+    }
+
+    // initializing jquery
+    $(document).ready(function() {
+      {% if request.user.is_authenticated %}
+        {% for story in stories %}
+          buttonVote("{{ story.urlcode }}");
+        {% endfor %}
+      {% endif %}
+
+      // this method controls voting system
+      $('.vote-button').on('click', function() {
+      {% if request.user.is_authenticated %}
+        var bttn = $(this).attr('id')
+        var urlcode = $(this).attr('data-story')
+        // post request is being sent
+        $.ajax({
+          type: 'POST',
+          url: '/ajax/vote/' + urlcode + '/',
+          data: {
+            bttn: bttn,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+          },
+          success: function(data) {
+            if (data['auth']) {
+              console.log("Login authentication granted!");
+              if (data['resp_code'] === 'exists') {
+                $("button[id='" + bttn + "'][data-story='" + urlcode + "']").popover('toggle');
+              }
+              if (data['resp_code'] === 'error') {
+                $("button[id='" + bttn + "'][data-story='" + urlcode + "']").popover({content: 'Server Error! Please report us!'});
+              }
+              if (data['resp_code'] === 'upvoted' || data['resp_code'] === 'downvoted') {
+                buttonVote(urlcode);
+              }
+            }
+            else {
+              $("div[class='post-buttons'][data-story='" + urlcode + "']").popover('toggle')
+            }
+          }
+        });
+        {% else %}
+          $(this).parent().popover('toggle')
+        {% endif %}
+      });
+    });
+  </script>
+{% endblock %}
+
+{% for story in stories %}
+  <div class="post-container">
+    <div class="post-elements">
+      <h1 class="post-headline">
+        <span class="glyphicon glyphicon-triangle-right"></span>
+        <span class="post-heading">
+          <a href="{{ story.get_absolute_url }}" target="<_blank">{{ story.title }}</a>
+        </span>
+      </h1>
+    </div>
+    <hr class="divider" />
+    <div class="post-elements">
+      <div class="post-content">
+        {{ story.text }}
+
+      </div>
+    </div>
+    <hr class="divider" />
+    <div class="post-elements" id="post-info">
+      <div class="post-share">
+        <ul class="share-buttons">
+          <li><a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}story/{{ story.urlcode }}" title="Share on Facebook" target="_blank"><img alt="Share on Facebook" src=" {% static 'img/shares/Facebook.png' %}"></a></li>
+          <li><a href="http://twitter.com/share?url={{request.build_absolute_uri }}story/{{ story.urlcode }}&text={{ story.title }}&hashtags=weirdbutreal" target="_blank" title="Tweet"><img alt="Tweet" src=" {% static 'img/shares/Twitter.png' %}"></a></li>
+          <li><a href="https://plus.google.com/share?url={{ request.build_absolute_uri }}story/{{ story.urlcode }}" target="_blank" title="Share on Google+"><img alt="Share on Google+" src=" {% static 'img/shares/Google+.png' %}"></a></li>
+          <li><a href="https://reddit.com/submit?url={{ request.build_absolute_uri }}story/{{ story.urlcode }}&title={{ story.text }}" target="_blank" title="Submit to Reddit"><img alt="Submit to Reddit" src=" {% static 'img/shares/Reddit.png' %}"></a></li>
+          <li><a href="mailto:?subject={{ story.title }}&body={{ request.build_absolute_uri }}story/{{ story.urlcode }}" target="_blank" title="Send email"><img alt="Send email" src=" {% static 'img/shares/Email.png' %}"></a></li>
+        </ul>
+      </div>
+      <div class="post-timestamp">
+        added by <a href="{% url 'pplistPage' story.author %}"><strong>{{ story.author }}</strong></a> in {{ story.created|date:"d M Y" }} -&nbsp&nbsp<a href="
+        {% if story.category == 'Funny' %}
+          {% url 'funnyPage' %}
+        {% elif story.category == 'Mysterious' %}
+          {% url 'mysteriousPage' %}
+        {% endif %}"><strong>#{{ story.category }}</strong></a>
+      </div>
+    </div>
+    <div class="post-elements">
+      <div class="post-stats">
+        <p>
+          <span class="highlighted">{{ story.storyupvotes_set.count }}</span> upvotes
+          <span class="highlighted">{{ story.storycomment_set.count }}</span> <a href="{{ story.get_absolute_url }}#comments">comments</a>
+        </p>
+      </div>
+      <div class="post-buttons" data-story="{{ story.urlcode }}" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-content="You need to login to vote.">
+        <button id="button-up" data-story="{{ story.urlcode }}" type="button" class="btn btn-default vote-button" data-placement="bottom" data-trigger="focus" data-content="You've already upvoted."><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> Upvote</button>
+        <button id="button-down" data-story="{{ story.urlcode }}" type="button" class="btn btn-default vote-button" data-placement="bottom" data-trigger="focus" data-content="You've already downvoted."><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span> Downvote</button>
+      </div>
+    </div>
+  </div>
+{% endfor %}
