@@ -98,7 +98,27 @@ class StoryComment(models.Model):
 
 
     def __str__(self):
-        return "{commentator} commented on '{storycode}'".format(commentator=self.commentator, storycode=self.post_itself.title)
+        return "{commentator} commented on {comment_id} - '{storycode}'".format(commentator=self.commentator,
+                                                                                storycode=self.post_itself.title,
+                                                                                comment_id=self.pk)
+
+
+
+class CommentLike(models.Model):
+
+    class Meta:
+        # It's the Comment model for a post.
+        verbose_name = 'Comment Like'
+        ordering = ['user']
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(StoryComment, on_delete=models.CASCADE)
+
+
+    def __str__(self):
+        return "{liker} liked {comment} of {commentator}".format(liker=self.user.username,
+                                                                comment=self.comment.pk,
+                                                                commentator=self.comment.commentator)
 
 
 
@@ -120,22 +140,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return "User Details for: {}".format(self.user.username)
-
-
-
-class CommentLike(models.Model):
-
-    class Meta:
-        # It's the Comment model for a post.
-        verbose_name = 'Comment Like'
-        ordering = ['user']
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.ForeignKey(StoryComment, on_delete=models.CASCADE)
-
-
-    def __str__(self):
-        return "{liker} liked {comment}".format(liker=self.user.username, comment=self.comment.commentator)
 
 
 

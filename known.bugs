@@ -7,8 +7,8 @@
 [REMOVED] Right top list bar refreshes only one time when server starts
 [REMOVED] Profile up/downvotes list, update up/downvotes numbers
 [REMOVED] All pages - down/upvotes number update
-Comment like button activate
-Comment Like fields not correct
+[REMOVED] Comment like counters are not active.
+[REMOVED] Comment like button activate
 Notification system with signal decorators
 Set database time to UTC and convert them in template
 Email confirmation when field was changed
@@ -16,3 +16,7 @@ Password update, reset
 Email update, reset
 Downvote & upvote remove
 Remove language option
+In single post page, comments should be listed according to likes first, then dates
+In database models, a user must not like same post more than once, add unique fields to database
+Admin panel is not very suitable for listing models' objects.
+commentlike text not changing when clicked like button

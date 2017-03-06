@@ -10,7 +10,7 @@
         // changes buttons' color
         $.ajax({
           type: 'GET',
-          url: '/ajax/vote/'+ urlcode +'/',
+          url: "/ajax/storyvote/" + urlcode + "/",
           datatype: 'json',
           success: function(data) {
             if (data['voted_up']) {
@@ -54,7 +54,7 @@
         // post request is being sent
         $.ajax({
           type: 'POST',
-          url: '/ajax/vote/' + urlcode + '/',
+          url: "/ajax/storyvote/" + urlcode + "/",
           data: {
             bttn: bttn,
             csrfmiddlewaretoken: '{{ csrf_token }}',

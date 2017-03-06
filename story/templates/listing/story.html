@@ -9,14 +9,34 @@ WeirdButReal - {{ post.title }}
 {% block scriptContainer %}
   <script type="text/javascript">
 
+    function commentVote() {
+      $.ajax({
+        type: "GET",
+        url: "{% url 'ajaxcommentvote' post.urlcode %}",
+        success: function(data) {
+          console.log(data);
+          var comments = $(".comment-like")
+          if (data.length != 0) {
+            $.each(data, function(index, value) {
+              $("button.comment-like#" + value).css({
+                backgroundColor: '#0f3c51',
+                color: 'white',
+              });
+            });
+          }
+        }
+      });
+    }
+
+
     // This function controls vote status and the button's color.
     function buttonVote() {
         // This request accesses vote db
         // returns a json (urlcode, voted_down, voted_up)
         // changes buttons' color
         $.ajax({
-          type: 'GET',
-          url: '/ajax/vote/{{ post.urlcode }}/',
+          type: "GET",
+          url: "{% url 'ajaxstoryvote' post.urlcode %}",
           datatype: 'json',
           success: function(data) {
             if (data['voted_up']) {
@@ -48,7 +68,40 @@ WeirdButReal - {{ post.title }}
     $(document).ready(function() {
       {% if request.user.is_authenticated %}
         buttonVote();
+        commentVote();
       {% endif %}
+
+      // This method controls comment-like voting system
+      $('.comment-like').on('click', function() {
+        var compk = $(this).attr('id')
+        // post request for comment-like
+        {% if request.user.is_authenticated %}
+          $.ajax({
+            type: 'POST',
+            url: "{% url 'ajaxcommentvote' post.urlcode %}",
+            data: {compk: compk, csrfmiddlewaretoken: '{{ csrf_token }}'},
+            success: function(response) {
+              var resp = response["resp"]
+              if (resp == "created") {
+                $("button.comment-like#" + compk).css({
+                  backgroundColor: '#0f3c51',
+                  color: 'white',
+                });
+              }
+              else {
+                $("button.comment-like#" + compk).css({
+                  backgroundColor: '#fff',
+                  color: '#333',
+                });
+              }
+            }
+          });
+        {% else %}
+          console.log("Authentication Error!");
+          $(".comment-like#" + compk).popover("toggle");
+        {% endif %}
+      });
+
 
       // this method controls voting system
       $('.vote-button').on('click', function() {
@@ -56,7 +109,7 @@ WeirdButReal - {{ post.title }}
         // post request is being sent
         $.ajax({
           type: 'POST',
-          url: '/ajax/vote/{{ post.urlcode }}/',
+          url: "{% url 'ajaxstoryvote' post.urlcode %}",
           data: {
             bttn: bttn,
             csrfmiddlewaretoken: '{{ csrf_token }}',

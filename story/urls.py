@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from story import views
-from story.views import Vote
+from story.views import StoryVote, CommentVote
 
 
 urlpatterns = [
@@ -29,5 +29,7 @@ urlpatterns = [
     url(r'^report/(?P<urlcode>[\w]+)/$', views.report, name='reportPage'),
     url(r'^delete-confirm/(?P<shortcode>[\w]+)$',views.deleteconfirm, name='deleteconfirmPage'),
     url(r'^delete-post/$', views.deletepost, name='deletePage'),
-    url(r'^ajax/vote/(?P<shortcode>[\w]+)/$', Vote.as_view(), name="ajaxvotingPage"),
+    url(r'^ajax/storyvote/(?P<shortcode>[\w]+)/$', StoryVote.as_view(), name="ajaxstoryvote"),
+    url(r'^ajax/commentvote/(?P<shortcode>[\w]+)/$', CommentVote.as_view(), name="ajaxcommentvote"),
+
 ]

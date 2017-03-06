@@ -1,10 +1,6 @@
 {% load static %}
 
-
-
-
 <div class="comment-container" id="comments">
-
   {# Comment Form #}
   <div class="comment-post">
     {% if not request.user.is_authenticated %}
@@ -36,11 +32,10 @@
         {{ com.comment }}
       </div>
       <div class="comment-like-buttons">
-        <button type="button" class="btn btn-default btn-sm">
+        <button type="button" class="btn btn-default btn-sm comment-like" id="{{ com.pk }}" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-content="You need to login to vote.">
           <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Like
         </button>
       </div>
     </div>
   {% endfor %}
-
 </div>

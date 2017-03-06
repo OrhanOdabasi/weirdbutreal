@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
@@ -575,7 +575,7 @@ def deletepost(request):
     return redirect(reverse('mypostsPage'))
 
 
-class Vote(View):
+class StoryVote(View):
     # this class-based view is for ajax requests for vote buttons
     def get(self, request, shortcode, *args, **kwargs):
         # retreive users vote data
@@ -598,8 +598,8 @@ class Vote(View):
 
         return JsonResponse(story_vote)
 
-    #post request for upvote-model update
     def post(self, request, shortcode, *args, **kwargs):
+        #post request for upvote-model update
         response = {}
         story = Story.objects.get(urlcode=shortcode)
 
@@ -655,4 +655,39 @@ class Vote(View):
         #if authentication is not passed
         else:
             response['auth'] = False
+        return JsonResponse(response)
+
+
+class CommentVote(View):
+
+    def get(self, request, shortcode, *args, **kwargs):
+        commentlikes = []
+        story = Story.objects.get(urlcode=shortcode)
+        comments = story.storycomment_set.all()
+        for comment in comments:
+            count = comment.commentlike_set.filter(user=self.request.user)
+            if count:
+                commentlikes.append(comment.pk)
+            #comment_like[comm.pk] = comm.commentlike_set.count
+
+        return JsonResponse(commentlikes, safe=False)
+
+    def post(self, request, shortcode, *args, **kwargs):
+        # post request for comment like button
+        response = {}
+        story = Story.objects.get(urlcode=shortcode)
+        compk = self.request.POST.get("compk")
+        if self.request.user.is_authenticated:
+            comment = StoryComment.objects.get(id=compk)
+            user = self.request.user
+            complike = CommentLike.objects.filter(comment=comment, user=user)
+
+            if complike.exists():
+                complike.delete()
+                response["resp"] = "removed"
+            else:
+                CommentLike.objects.create(user=user, comment=comment)
+                response["resp"] = "created"
+        else:
+            response['resp'] = 'auth_error'
         return JsonResponse(response)
