@@ -180,6 +180,7 @@ div.post-content {
   font-size: 18px;
   line-height: 140%;
   min-height: 75px;
+  word-wrap: break-word;
 }
 
 hr {

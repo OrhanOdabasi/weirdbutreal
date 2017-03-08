@@ -8,11 +8,6 @@
 {% block postContainer %}
   <div class="post-container">
     <h3 class="page-title">Search a Story</h3>
-    {% if form.errors %}
-      <div class="alert alert-warning" role="alert">
-        {{ form.errors }}
-      </div>
-    {% endif %}
     <form class="form-container" method="GET" action="">
       {% for field in form  %}
       <div class="form-group-container">
@@ -33,7 +28,11 @@
     {% include "modules/post_list.html" %}
   {% else %}
     <div>
-      <p>No way! We don't have a weird story about "{{ query }}".</p>
+      {% if messages %}
+        {% for message in messages  %}
+          <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
       <p>Maybe you haven't typed it right. Maybe strange things happened!</p>
     </div>
   {% endif %}

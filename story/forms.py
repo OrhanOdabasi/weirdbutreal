@@ -109,7 +109,7 @@ class SignupForm(forms.ModelForm):
         exp = re.compile('[^a-zA-Z0-9_]')
         if re.search(exp, username):
             raise forms.ValidationError("Username must only contain upper or lower letters, numbers or '_' character.")
-        if 15 > len(username) > 4:
+        if len(username) < 4 and len(username) > 15:
             raise forms.ValidationError("Username must have 5 characters at least and 14 characters at most!")
         username_check = User.objects.filter(username=username)
         if username_check.exists():
@@ -127,8 +127,9 @@ class SignupForm(forms.ModelForm):
 
 class SearchPostForm(forms.Form):
     # This form is the search engine of the site.
-    search_q = forms.CharField(label="Search Post", widget=forms.TextInput(attrs={
-        'class': 'form-control',}))
+    searchq = forms.CharField(label="Search Post", widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'maxlength': '25',}))
 
 
 class UserEditForm(forms.ModelForm):

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.contrib import messages
 from django.views import View
 
@@ -160,7 +160,9 @@ def story(request, shortcode):
     qs = get_object_or_404(Story, urlcode=shortcode)
     comment_count = qs.storycomment_set.count()
     if qs.storycomment_set:
-        comments = qs.storycomment_set.all().order_by("-likes")
+        # list comments
+        comments = qs.storycomment_set.all().annotate(topvotes=Count('commentlike'))
+        comments= comments.order_by('-topvotes', '-comment_date')
     else:
         comments = False
 
@@ -392,9 +394,9 @@ def mydownvotes(request):
 
 def searchpost(request):
     # searchs posts only
-    query = request.GET.get("search_q")
-    if query:
-        form = SearchPostForm(initial={'search_q': query})
+    query = request.GET.get("searchq")
+    if query and len(query)>3 and len(query)<25:
+        form = SearchPostForm(initial={'searchq': query})
         story_list = Story.objects.filter(
             Q(title__icontains=query)|
             Q(text__icontains=query)
@@ -408,6 +410,8 @@ def searchpost(request):
             story_list = paginator.page(1)
         except EmptyPage:
             story_list = paginator.page(paginator.num_pages)
+        if not story_list:
+            messages.warning(request, "No way! We don't have a weird story about it!")
         context = {
             'query' : query,
             'stories' : story_list,
@@ -415,6 +419,7 @@ def searchpost(request):
     else:
         form = SearchPostForm()
         context = {}
+        messages.warning(request, "Search term must contain at least 4 max 24 characters")
 
     latest_f, latest_m, latest_a = latestStories(eptm)
     context.update( {

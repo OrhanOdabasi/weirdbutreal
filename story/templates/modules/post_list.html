@@ -68,8 +68,15 @@
               if (data['resp_code'] === 'error') {
                 $("button[id='" + bttn + "'][data-story='" + urlcode + "']").popover({content: 'Server Error! Please report us!'});
               }
-              if (data['resp_code'] === 'upvoted' || data['resp_code'] === 'downvoted') {
+              if (data['resp_code'] == 'upvoted') {
                 buttonVote(urlcode);
+                var cntr = $("#upvote-counter"+urlcode).text()
+                $("#upvote-counter"+urlcode).text(parseInt(cntr)+1)
+              }
+              if (data['resp_code'] == 'downvoted') {
+                buttonVote(urlcode);
+                var cntr = $("#upvote-counter"+urlcode).text()
+                $("#upvote-counter"+urlcode).text(parseInt(cntr)-1)
               }
             }
             else {
@@ -98,8 +105,7 @@
     <hr class="divider" />
     <div class="post-elements">
       <div class="post-content">
-        {{ story.text }}
-
+        {{ story.text|linebreaksbr }}
       </div>
     </div>
     <hr class="divider" />
@@ -125,8 +131,8 @@
     <div class="post-elements">
       <div class="post-stats">
         <p>
-          <span class="highlighted">{{ story.storyupvotes_set.count }}</span> upvotes
-          <span class="highlighted">{{ story.storycomment_set.count }}</span> <a href="{{ story.get_absolute_url }}#comments">comments</a>
+          <span class="highlighted" id="upvote-counter{{ story.urlcode }}">{{ story.storyupvotes_set.count }}</span> upvotes
+          <span class="highlighted" id="comment-counter{{ story.urlcode }}">{{ story.storycomment_set.count }}</span> <a href="{{ story.get_absolute_url }}#comments">comments</a>
         </p>
       </div>
       <div class="post-buttons" data-story="{{ story.urlcode }}" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-content="You need to login to vote.">

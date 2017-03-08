@@ -87,12 +87,16 @@ WeirdButReal - {{ post.title }}
                   backgroundColor: '#0f3c51',
                   color: 'white',
                 });
+                var cntr = $("#comment-counter"+compk).text()
+                $("#comment-counter"+compk).text(parseInt(cntr)+1)
               }
-              else {
+              if (resp == "removed") {
                 $("button.comment-like#" + compk).css({
                   backgroundColor: '#fff',
                   color: '#333',
                 });
+                var cntr = $("#comment-counter"+compk).text()
+                $("#comment-counter"+compk).text(parseInt(cntr)-1)
               }
             }
           });
@@ -117,14 +121,21 @@ WeirdButReal - {{ post.title }}
           success: function(data) {
             if (data['auth']) {
               console.log("Login Authantication granted");
-              if (data['resp_code'] === 'exists') {
+              if (data['resp_code'] == 'exists') {
                 $('#'+bttn).popover('toggle');
               }
-              if (data['resp_code'] === 'error') {
+              if (data['resp_code'] == 'error') {
                 $('#'+bttn).popover('toggle', content='Server side error! Report this error, please.');
               }
-              if (data['resp_code'] === 'upvoted' || data['resp_code'] === 'downvoted') {
+              if (data['resp_code'] == 'upvoted') {
                 buttonVote();
+                var cntr = $("#upvote-counter").text()
+                $("#upvote-counter").text(parseInt(cntr)+1)
+              }
+              if (data['resp_code'] == 'downvoted') {
+                buttonVote();
+                var cntr = $("#upvote-counter").text()
+                $("#upvote-counter").text(parseInt(cntr)-1)
               }
             }
             else {
@@ -184,8 +195,8 @@ WeirdButReal - {{ post.title }}
     <div class="post-elements">
       <div class="post-stats">
         <p>
-          <span class="highlighted">{{ post.upvotes }}</span> upvotes
-          <span class="highlighted">{{ post.storycomment_set.count }}</span> comments
+          <span class="highlighted" id="upvote-counter">{{ post.storyupvotes_set.count }}</span> upvotes
+          <span class="highlighted" id="comment-counter">{{ post.storycomment_set.count }}</span> comments
         </p>
       </div>
       <div class="post-buttons" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-content="You need to login to vote.">

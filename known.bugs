@@ -9,14 +9,20 @@
 [REMOVED] All pages - down/upvotes number update
 [REMOVED] Comment like counters are not active.
 [REMOVED] Comment like button activate
-Notification system with signal decorators
+[REMOVED] In single post page, comments should be listed according to likes first, then dates
+[REMOVED] post upvote number not working in single post page
+[REMOVED] commentlike text not changing when clicked like button
+[REMOVED] upvote numbers and like numbers not changing instantly
+[REMOVED] add character limit for search bars
+Downvote & upvote remove
 Set database time to UTC and convert them in template
 Email confirmation when field was changed
 Password update, reset
 Email update, reset
-Downvote & upvote remove
-Remove language option
-In single post page, comments should be listed according to likes first, then dates
-In database models, a user must not like same post more than once, add unique fields to database
-Admin panel is not very suitable for listing models' objects.
-commentlike text not changing when clicked like button
+Notification system with signal decorators
+add more pagination links
+add lazy load functionality for website list pages
+MultiLanguage Configuration for the site
+responsive view is not available in mobile access
+[LATER] last 2 voters can be shown to users in single post menu
+[LATER] Admin panel is not very suitable for listing models' objects.

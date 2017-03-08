@@ -25,7 +25,7 @@ SECRET_KEY = '&e=ob1-tkfk$p6gzt04hzbqp3vl&ifgexvww#p^^%0d8s!se60'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['217.131.152.169', '127.0.0.1', 'www.weirdbutreal.com']
+ALLOWED_HOSTS = ['217.131.154.12', '127.0.0.1', 'www.weirdbutreal.com']
 
 
 # Application definition
