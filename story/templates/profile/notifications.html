@@ -9,23 +9,27 @@
     <div class="notify-container">
       <h3 class="page-title">Notifications</h3>
       <ul>
-
-        <li>
-          <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          <a href=""><span style="font-weight: bold;">TheLegend27</span></a> upvoted your <a href=""><span style="font-weight: bold;">story</span></a> 14 minutes ago.
-        </li>
-        <li>
-          <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          <a href=""><span style="font-weight: bold;">TheLegend27</span></a> upvoted your <a href=""><span style="font-weight: bold;">story</span></a> 14 minutes ago.
-        </li>
-        <li>
-          <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          <a href=""><span style="font-weight: bold;">TheLegend27</span></a> upvoted your <a href=""><span style="font-weight: bold;">story</span></a> 14 minutes ago.
-        </li>
-        <li>
-          <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-          <a href=""><span style="font-weight: bold;">TheLegend27</span></a> upvoted your <a href=""><span style="font-weight: bold;">story</span></a> 14 minutes ago.
-        </li>
+        {% for noty in notification_list  %}
+          <li>
+            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+            <a href=""><span style="font-weight: bold;">{{ noty.notifier }}</span></a>
+            {% if noty.kind == "Story" %}
+              upvoted
+            {% else %}
+              liked
+            {% endif %} your
+            {% if noty.kind == "Story" %}
+              <a href="{% url 'storyPage' noty.conn %}"><span style="font-weight: bold;">story</span></a> {{ noty.notify_time|timesince }} ago.
+            {% else %}
+              {% for comment in noty.owner.storycomment_set.all  %}
+                {% if comment.pk == noty.conn|add:"0" %}
+                  <a href="{% url 'storyPage' comment.post_itself.urlcode %}#{{ noty.conn }}"><span style="font-weight: bold;">comment</span></a>
+                   {{ noty.notify_time|timesince }} ago.
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </li>
+        {% endfor %}
     </div>
   </div>
 {% endblock %}

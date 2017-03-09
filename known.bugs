@@ -14,14 +14,13 @@
 [REMOVED] commentlike text not changing when clicked like button
 [REMOVED] upvote numbers and like numbers not changing instantly
 [REMOVED] add character limit for search bars
-Downvote & upvote remove
-Set database time to UTC and convert them in template
-Email confirmation when field was changed
-Password update, reset
+[REMOVED] Notification system with signal decorators
 Email update, reset
-Notification system with signal decorators
+Password update, reset
 add more pagination links
+Email confirmation when field was changed
 add lazy load functionality for website list pages
+Set database time to UTC and convert them in template
 MultiLanguage Configuration for the site
 responsive view is not available in mobile access
 [LATER] last 2 voters can be shown to users in single post menu

@@ -2,6 +2,7 @@ from django.db import models
 from .urlgenerator import create_urlcode
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from datetime import datetime
 
 
 class Story(models.Model):
@@ -48,6 +49,28 @@ class Story(models.Model):
 
     def get_absolute_url(self):
         return reverse('storyPage', kwargs={'shortcode': self.urlcode})
+
+
+class Notification(models.Model):
+
+    class Meta:
+        # Model for users' notifications
+        verbose_name = "Notification"
+
+    owner = models.ForeignKey(User, on_delete=models.CASCADE) # will get the not.
+    notifier = models.CharField(max_length=6) # user who sends not.
+    choices = (
+        ('Story', 'Story'),
+        ('Comment', 'Comment'),
+    )
+    kind = models.CharField(choices=choices, max_length=8) # which model is sending it
+    conn = models.CharField(max_length=10) # story urlcode or comment id
+    read = models.BooleanField(default=False) # notitification read status
+    notify_time = models.DateTimeField(auto_now_add=True, null=True)
+
+
+    def __str__(self):
+        return "Owner: {owner} - Notifier: {notifier}".format(owner=self.owner, notifier=self.notifier)
 
 
 

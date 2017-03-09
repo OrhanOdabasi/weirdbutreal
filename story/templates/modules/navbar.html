@@ -12,16 +12,22 @@
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav navbar-right">
         {% if request.user.is_authenticated %}
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-fw fa-bell-o"></i><span class="badge">0</span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-tag"></i> <span class="badge">Thelegend27</span> upvoted your story <span class="badge">12 minutes</span> ago</a></li>
-            <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-thumbs-o-up"></i> <span class="badge">LeventK</span> upvoted your story <span class="badge">14 minutes</span> ago</a></li>
-            <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-thumbs-o-up"></i> <span class="badge">Bozkoyunlu</span> upvoted your story <span class="badge">34 minutes</span> ago</a></li>
-            <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-thumbs-o-up"></i> <span class="badge">Burcuuu</span> upvoted your story <span class="badge">1 hour</span> ago</a></li>
-            <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-thumbs-o-up"></i> <span style="margin:50px;">check all you recent notifications...</span></a></li>
-          </ul>
-        </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-fw fa-bell-o"></i><span class="badge">{{ unread }}</span></a>
+            <ul class="dropdown-menu" role="menu">
+              {% for noty in notifications %}
+                <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-tag"></i> <span class="badge">{{noty.notifier}}</span>
+                   upvoted your
+                   {% if noty.kind == 'Story' %}
+                    story
+                   {% else %}
+                    comment
+                   {% endif %}
+                   <span class="badge">{{noty.notify_time|timesince}}</span> ago</a></li>
+              {% endfor %}
+              <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-thumbs-o-up"></i> <span style="margin:50px;">check all you recent notifications...</span></a></li>
+            </ul>
+          </li>
         {% endif %}
         <li class="active"><a href="{% url 'mysteriousPage' %}">Mysterious <span class="sr-only">(current)</span></a></li>
         <li class="active"><a href="{% url 'funnyPage' %}">Funny <span class="sr-only">(current)</span></a></li>

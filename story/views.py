@@ -14,7 +14,8 @@ from .models import (Story,
                     StoryUpvotes,
                     StoryDownvotes,
                     CommentLike,
-                    Profile)
+                    Profile,
+                    Notification)
 from .forms import (PostStoryForm,
                     LoginForm,
                     SignupForm,
@@ -37,6 +38,12 @@ def latestStories(eptm):
     return latest_f, latest_m, latest_a
 
 
+def getNotifications(user, last):
+    notifications = Notification.objects.filter(owner=user)
+    unread = notifications.filter(read=False).count()
+    notifications = notifications.order_by('-notify_time')[:last]
+    return unread, notifications
+
 # Views methods
 
 def homepage(request):
@@ -53,11 +60,19 @@ def homepage(request):
         story_list = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'stories' : story_list,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'listing/index.html', context)
 
@@ -76,11 +91,19 @@ def funny(request):
         story_list = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'stories' : story_list,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'listing/funny.html', context)
 
@@ -99,24 +122,44 @@ def mysterious(request):
         story_list = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'stories' : story_list,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'listing/mysterious.html', context)
 
 
-# TODO: Undone notifications system
 @login_required(redirect_field_name='redirect', login_url='/login')
 def notifications(request):
     # simple notification system
+    allnotifications = Notification.objects.filter(owner=request.user)
+    for each in allnotifications:
+        each.read = True
+        each.save()
+
+    notification_list = allnotifications.order_by('-notify_time')[:20]
+
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+
     latest_f, latest_m, latest_a = latestStories(eptm)
     context = {
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'notification_list' : notification_list,
+        'unread' : unread,
     }
     return render(request, 'profile/notifications.html', context)
 
@@ -136,10 +179,18 @@ def profile(request):
 def help(request):
     # Help and FAQ page of the site
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'misc/help.html', context)
 
@@ -147,10 +198,18 @@ def help(request):
 def about(request):
     # Simple page about site and the programmer
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'misc/about.html', context)
 
@@ -178,6 +237,12 @@ def story(request, shortcode):
             return redirect(qs)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     if qs and qs.active:
         context = {
         'post' : qs,
@@ -187,6 +252,8 @@ def story(request, shortcode):
         'latest_a' : latest_a,
         'comments' : comments,
         'commentform': commentform,
+        'notifications' : notifications,
+        'unread' : unread,
         }
     return render(request, 'listing/story.html', context)
 
@@ -205,11 +272,19 @@ def submitstory(request):
                 return redirect(new_obj)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'form': PostStoryForm,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'forms/post-story.html', context)
 
@@ -229,11 +304,19 @@ def login_view(request):
         return redirect(reverse('homePage'))
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'form' : form,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'registration/login.html', context)
 
@@ -274,10 +357,18 @@ def register(request):
 def passReminder(request):
     # password remider page
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'registration/pass_reminder.html', context)
 
@@ -301,11 +392,19 @@ def myposts(request):
         story_ls = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'stories' : story_ls,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'profile/myposts.html', context)
 
@@ -329,11 +428,19 @@ def mycomments(request):
         comment_list = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'stories' : comment_list,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'profile/mycomments.html', context)
 
@@ -356,11 +463,19 @@ def myupvotes(request):
         upvote_list = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'my_upvotes' : upvote_list,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'profile/myupvotes.html', context)
 
@@ -383,11 +498,19 @@ def mydownvotes(request):
         downvote_list = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'my_downvotes' : downvote_list,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'profile/mydownvotes.html', context)
 
@@ -422,11 +545,19 @@ def searchpost(request):
         messages.warning(request, "Search term must contain at least 4 max 24 characters")
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context.update( {
         'form' : form,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     })
     return render(request, 'listing/search.html', context)
 
@@ -449,11 +580,19 @@ def editprofile(request):
     form = UserEditForm(instance=qs, prefix="formone")
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'form' : form,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'forms/edit-profile.html', context)
 
@@ -476,11 +615,19 @@ def profilepostlist(request, profile):
         story_ls = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'stories' : story_ls,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'listing/pplist.html', context)
 
@@ -507,11 +654,19 @@ def toplists(request, cat):
         story_list = paginator.page(paginator.num_pages)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'stories' : story_list,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'listing/toplist.html', context)
 
@@ -534,6 +689,12 @@ def report(request, urlcode):
             messages.error(request, "Something went wrong. Try again please!")
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'latest_f' : latest_f,
         'latest_m' : latest_m,
@@ -541,6 +702,8 @@ def report(request, urlcode):
         'post_title' : title,
         'reportid' : reportid,
         'form' : form,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'forms/report.html', context)
 
@@ -554,11 +717,19 @@ def deleteconfirm(request, shortcode):
         return redirect(reverse('storyPage', kwargs={'shortcode': shortcode}))
 
     latest_f, latest_m, latest_a = latestStories(eptm)
+    if request.user.is_authenticated:
+        unread, notifications = getNotifications(user=request.user, last=5)
+    else:
+        notifications = False
+        unread = False
+
     context = {
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
         'post' : post,
+        'notifications' : notifications,
+        'unread' : unread,
     }
     return render(request, 'misc/delete_post.html', context)
 
