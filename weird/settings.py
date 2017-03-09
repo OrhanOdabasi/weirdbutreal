@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'wierd.urls'
+ROOT_URLCONF = 'weird.urls'
 
 TEMPLATES = [
     {
@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wierd.wsgi.application'
+WSGI_APPLICATION = 'weird.wsgi.application'
 
 
 # Database
