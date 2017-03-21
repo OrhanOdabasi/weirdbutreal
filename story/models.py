@@ -57,10 +57,11 @@ class Notification(models.Model):
         # Model for users' notifications
         verbose_name = "Notification"
 
-    owner = models.ForeignKey(User, on_delete=models.CASCADE) # will get the not.
-    notifier = models.CharField(max_length=6) # user who sends not.
+    owner = models.ForeignKey(User, on_delete=models.CASCADE) # will get the notification.
+    notifier = models.CharField(max_length=15) # user who sends notification.
     choices = (
         ('Story', 'Story'),
+        ('CommentLike', 'CommentLike'),
         ('Comment', 'Comment'),
     )
     kind = models.CharField(choices=choices, max_length=8) # which model is sending it

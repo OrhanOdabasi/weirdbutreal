@@ -15,6 +15,7 @@
 [REMOVED] upvote numbers and like numbers not changing instantly
 [REMOVED] add character limit for search bars
 [REMOVED] Notification system with signal decorators
+[REMOVED] Comment notifier and all other notifiers must be redesigned
 Email update, reset
 Password update, reset
 add more pagination links

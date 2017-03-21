@@ -17,12 +17,15 @@
             <ul class="dropdown-menu" role="menu">
               {% for noty in notifications %}
                 <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-tag"></i> <span class="badge">{{noty.notifier}}</span>
-                   upvoted your
-                   {% if noty.kind == 'Story' %}
-                    story
-                   {% else %}
-                    comment
-                   {% endif %}
+                  {% if noty.kind == 'Story' %}
+                    upvoted your story
+                  {% endif %}
+                  {% if noty.kind == "CommentLike" %}
+                    liked you comment
+                  {% endif %}
+                  {% if noty.kind == "Comment" %}
+                    commented on your story
+                  {% endif %}
                    <span class="badge">{{noty.notify_time|timesince}}</span> ago</a></li>
               {% endfor %}
               <li><a href="{% url 'notificationsPage' %}"><i class="fa fa-fw fa-thumbs-o-up"></i> <span style="margin:50px;">check all you recent notifications...</span></a></li>

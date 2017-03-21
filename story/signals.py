@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from story.models import StoryUpvotes, CommentLike, Notification
+from story.models import StoryUpvotes, CommentLike, Notification, StoryComment
 
 @receiver(post_save, sender=StoryUpvotes)
 def upvote_notifier(sender, created, instance, **kwargs):
@@ -30,17 +30,39 @@ def like_notifier(sender, created, instance, **kwargs):
     if created:
         owner = instance.comment.commentator
         notifier = instance.user.username
-        kind = "Comment"
+        kind = "CommentLike"
         conn = instance.comment.pk
         q = Notification(owner=owner, notifier=notifier, kind=kind, conn=conn)
         q.save()
 
 
 @receiver(post_delete, sender=CommentLike)
-def dlt_comment_notification(sender, instance, **kwargs):
+def dlt_commentlike_notification(sender, instance, **kwargs):
     # this method deletes notification if comment like instance is deleted (downvoted)
     conn = instance.comment.pk
     notifier = instance.user.username
     q = Notification.objects.filter(conn=conn, notifier=notifier)
+    if q:
+        q.delete()
+
+
+@receiver(post_save, sender=StoryComment)
+def comment_notification(sender, created, instance, **kwargs):
+    # comment notifier
+    if created:
+        owner = instance.post_itself.author
+        notifier = instance.commentator.username
+        kind = "Comment"
+        conn = instance.pk
+        q = Notification(owner=owner, notifier=notifier, kind=kind, conn=conn)
+        q.save()
+
+@receiver(post_delete, sender=StoryComment)
+def dlt_comment_notification(sender, instance, **kwargs):
+    # this method deletes the notification if comment instance is removed form db.
+    conn = instance.pk
+    notifier = instance.commentator.username
+    kind = "CommentLike"
+    q = Notification.objects.filter(conn=conn, notifier=notifier, kind=kind)
     if q:
         q.delete()
