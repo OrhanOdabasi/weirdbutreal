@@ -22,7 +22,9 @@ Password update, reset
 Email confirmation when field was changed
 add lazy load functionality for website list pages
 Set database time to UTC and convert them in template
-MultiLanguage Configuration for the site
+[LATER] MultiLanguage Configuration for the site
+[LATER] add 'active' class for users to understand what section there are in.
 [LATER] add more pagination links
 [LATER] last 2 voters can be shown to users in single post menu
 [LATER] Admin panel is not very suitable for listing models' objects.
+[LATER] Button should response faster.
