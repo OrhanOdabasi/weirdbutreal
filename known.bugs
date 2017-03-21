@@ -16,13 +16,13 @@
 [REMOVED] add character limit for search bars
 [REMOVED] Notification system with signal decorators
 [REMOVED] Comment notifier and all other notifiers must be redesigned
+[REMOVED] responsive view is not available in mobile access
 Email update, reset
 Password update, reset
-add more pagination links
 Email confirmation when field was changed
 add lazy load functionality for website list pages
 Set database time to UTC and convert them in template
 MultiLanguage Configuration for the site
-responsive view is not available in mobile access
+[LATER] add more pagination links
 [LATER] last 2 voters can be shown to users in single post menu
 [LATER] Admin panel is not very suitable for listing models' objects.
