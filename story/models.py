@@ -64,7 +64,7 @@ class Notification(models.Model):
         ('CommentLike', 'CommentLike'),
         ('Comment', 'Comment'),
     )
-    kind = models.CharField(choices=choices, max_length=8) # which model is sending it
+    kind = models.CharField(choices=choices, max_length=15) # which model is sending it
     conn = models.CharField(max_length=10) # story urlcode or comment id
     read = models.BooleanField(default=False) # notitification read status
     notify_time = models.DateTimeField(auto_now_add=True, null=True)
