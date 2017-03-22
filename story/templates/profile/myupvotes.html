@@ -4,6 +4,27 @@
   My Upvotes
 {% endblock %}
 
+{% block scriptContainer %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $(".remove-like-button").click(function(e){
+    var datacode = $(this).attr("id")
+    $("#" + datacode + "-container").hide(500, function() {
+      $.ajax({
+        type: "POST",
+        url: '{% url 'removevotes' %}',
+        data: {datacat: 'storyupvote', datacode: datacode, csrfmiddlewaretoken: '{{ csrf_token }}'},
+        success: function(){
+          console.log("successful");
+        }
+      });
+    });
+    e.preventDefault();
+  });
+});
+</script>
+{% endblock %}
+
 {% block profile-details %}
   {% include "modules/profile_detail_menu.html" %}
 {% endblock %}
@@ -12,21 +33,22 @@
   <h3 class="page-title">List of My Upvotes</h3>
   <div class="post-container">
     {% for upvote_story in my_upvotes  %}
-      <div class="narrow-story">
+      <div class="narrow-story" id="{{upvote_story.story.urlcode}}-container">
         <div>
           <h1 class="post-headline post-heading">
             <span class="glyphicon glyphicon-triangle-right"></span>
-            <a href="{{ upvote.story.get_absolute_url }}" target="<_blank">{{ upvote_story.story.title }}</a>
+            <a href="{{ upvote_story.story.get_absolute_url }}" target="_blank">{{ upvote_story.story.title }}</a>
           </h1>
         </div>
         <div>
           <ul class="story-stats-sm">
             <li> <strong>Category: </strong>{{ upvote_story.story.category }}</li>
             <li> <strong>Total Upvotes: </strong>{{ upvote_story.story.storyupvotes_set.count }}</li>
+            <li><a href="#" style="color:red;" class="remove-like-button" id="{{ upvote_story.story.urlcode }}"><span class="glyphicon glyphicon-remove"></span>Remove</a></li>
           </ul>
         </div>
+        <hr style="width:100%;">
       </div>
-      <hr style="width:100%;">
     {% endfor %}
   </div>
 {% endblock %}

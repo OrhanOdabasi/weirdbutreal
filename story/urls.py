@@ -31,5 +31,5 @@ urlpatterns = [
     url(r'^delete-post/$', views.deletepost, name='deletePage'),
     url(r'^ajax/storyvote/(?P<shortcode>[\w]+)/$', StoryVote.as_view(), name="ajaxstoryvote"),
     url(r'^ajax/commentvote/(?P<shortcode>[\w]+)/$', CommentVote.as_view(), name="ajaxcommentvote"),
-
+    url(r'^ajax/remove/$', views.removeVotes, name="removevotes"),
 ]

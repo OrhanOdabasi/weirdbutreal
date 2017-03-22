@@ -867,3 +867,26 @@ class CommentVote(View):
         else:
             response['resp'] = 'auth_error'
         return JsonResponse(response)
+
+
+@login_required(redirect_field_name='redirect', login_url='/login')
+def removeVotes(request):
+    # removes the vote or like objects in profile menu
+    print(request.POST)
+    datacat = request.POST.get("datacat")
+    datacode = request.POST.get("datacode")
+    user = request.user
+
+    if datacat == 'storyupvote':
+        story = Story.objects.filter(urlcode=datacode)
+        q = StoryUpvotes.objects.filter(user=user, story=story)
+        if q: q.delete()
+    elif datacat == 'storydownvote':
+        story = Story.objects.filter(urlcode=datacode)
+        q = StoryDownvotes.objects.filter(user=user, story=story)
+        if q: q.delete()
+    elif datacat == 'comment':
+        q = StoryComment.objects.filter(pk=datacode, commentator=user)
+        if q: q.delete()
+
+    return HttpResponse("")
