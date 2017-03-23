@@ -15,12 +15,15 @@
   <div class="post-container">
     <div class="auth-form">
 
-      <h3 class="page-title">Edit Your Profile --{{ request.user }}--</h3>
+      <h3 class="page-title">Edit Your Profile, {{ request.user }}</h3>
       {% if messages %}
         {% for message in messages  %}
           <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
         {% endfor %}
       {% endif %}
+      <p style="margin-top: 5px; text-align: center;">
+        If you change your e-mail address, we will send a confirmation link to your new mail address.
+      </p>
 
       <form method="POST" action=""> {% csrf_token %}
         {% for field in form %}
@@ -36,6 +39,7 @@
         #}-->
         <button type="submit" class="btn btn-primary btn-lg btn-block" id="auth-button">Save Changes</button>
       </form>
+
     </div>
   </div>
 {% endblock %}

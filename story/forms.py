@@ -47,7 +47,6 @@ class PostStoryForm(forms.ModelForm):
         return text
 
 
-
 class LoginForm(forms.Form):
     # It is the form used for logging a existing user in.
     username = forms.CharField(max_length=13, widget = forms.TextInput(attrs={'class': 'form-control'}))
@@ -92,6 +91,15 @@ class SignupForm(forms.ModelForm):
                 'class': 'form-control',
                 'required': 'required'}),
         }
+
+    def clean_password(self):
+        # must have 6 characters at least
+        password = self.cleaned_data.get("password")
+        if len(password) < 6:
+            raise forms.ValidationError("Password must be at least 6 characters!")
+        if len(password) > 20:
+            raise forms.ValidationError("Password must be max. 20 characters!")
+        return password
 
     def clean_password2(self):
         # It checks if emails fields are identical.
@@ -178,6 +186,7 @@ class UserEditForm(forms.ModelForm):
         return username
     """
 
+
 class ProfileEditForm(forms.ModelForm):
     # It allows to edit other profile details.
     class Meta:
@@ -223,3 +232,52 @@ class ReportStory(forms.ModelForm):
                 'cols' : 60,
                 'class' : 'form-control',}),
         }
+
+
+class resetPassword(forms.Form):
+    # it's a password reset form
+    email_addr = forms.EmailField(label="E-mail address:", widget = forms.EmailInput(attrs={
+        'class': 'form-control',
+         'required': 'required'}))
+
+    def clean(self, *args, **kwargs):
+        # should check if there is a user with the specified email
+        email_addr = self.cleaned_data.get("email_addr")
+        qs = User.objects.filter(email=email_addr)
+        if qs.count() == 0:
+            raise forms.ValidationError("This e-mail address doesn't exist!")
+        return super(resetPassword, self).clean(*args, **kwargs)
+
+
+class changePassword(forms.Form):
+    # it's a form to change existing password
+    old_password = forms.CharField(label="Old Password:", widget = forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'required': 'required',
+    }))
+    new_password = forms.CharField(label="New Password:", widget = forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'required': 'required',
+    }))
+    new_password2 = forms.CharField(label="Re-type New Password:", widget = forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'required': 'required',
+    }))
+
+    def clean(self, *args, **kwargs):
+        # other two fields must match
+        old_password = self.cleaned_data.get('old_password')
+        new_password = self.cleaned_data.get('new_password')
+        new_password2 = self.cleaned_data.get('new_password2')
+        if new_password is None or new_password == "":
+            raise forms.ValidationError("You cannot leave old password field blank!")
+        if new_password != new_password2:
+            raise forms.ValidationError("New passwords did not match!")
+        if old_password == new_password2:
+            raise forms.ValidationError("You did not change your password")
+        if len(new_password) < 6:
+            raise forms.ValidationError("Password must be at least 6 characters!")
+        elif len(new_password) > 20:
+            raise forms.ValidationError("Password must be max. 20 characters!")
+
+        return super(changePassword, self).clean(*args, **kwargs)

@@ -23,7 +23,9 @@ from .forms import (PostStoryForm,
                     ProfileEditForm,
                     UserEditForm,
                     LeaveComment,
-                    ReportStory)
+                    ReportStory,
+                    resetPassword,
+                    changePassword,)
 
 # post per page
 ppp = 10
@@ -353,9 +355,31 @@ def register(request):
     return render(request, 'registration/signup.html', context)
 
 
-# TODO: Undone passreminder page
-def passReminder(request):
-    # password remider page
+@login_required(redirect_field_name='redirect', login_url='/login')
+def changepassword(request):
+    # change password
+    form = changePassword()
+    user = request.user
+    if request.method == "POST":
+        form = changePassword(request.POST)
+        if form.is_valid():
+            old_password = request.POST.get("old_password")
+            auth_check = authenticate(username=user, password=old_password)
+            if auth_check:
+                new_password = request.POST.get("new_password")
+                try:
+                    u = User.objects.get(username=user)
+                    u.set_password(new_password)
+                    u.save()
+                    msg = "Your password has been changed successfully!"
+                    messages.success(request, msg)
+                except:
+                    msg = "Some error occured!"
+                    messages.warning(request, msg)
+            else:
+                msg = "Your old password did not match!"
+                messages.warning(request, msg)
+
     latest_f, latest_m, latest_a = latestStories(eptm)
     if request.user.is_authenticated:
         unread, notifications = getNotifications(user=request.user, last=5)
@@ -369,8 +393,34 @@ def passReminder(request):
         'latest_a' : latest_a,
         'notifications' : notifications,
         'unread' : unread,
+        'form' : form,
     }
-    return render(request, 'registration/pass_reminder.html', context)
+    return render(request, 'forms/changepassword.html', context)
+
+
+# TODO: Undone passreminder page
+def resetpassword(request):
+    # password reset page
+    if request.user.is_authenticated:
+        return redirect(reverse('profilePage'))
+    form = resetPassword(request.POST or None)
+    if form.is_valid():
+        #TODO: send mail
+        print("valid")
+        msg = "We have sent you a mail! Check your mailbox and click the link!"
+        messages.success(request, msg)
+
+    latest_f, latest_m, latest_a = latestStories(eptm)
+
+    context = {
+        'latest_f' : latest_f,
+        'latest_m' : latest_m,
+        'latest_a' : latest_a,
+        'notifications' : False,
+        'unread' : False,
+        'form' : form,
+    }
+    return render(request, 'registration/resetpassword.html', context)
 
 
 @login_required(redirect_field_name='redirect', login_url='/login')

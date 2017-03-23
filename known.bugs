@@ -18,12 +18,13 @@
 [REMOVED] Comment notifier and all other notifiers must be redesigned
 [REMOVED] responsive view is not available in mobile access
 [REMOVED] Removing upvotes, likes etc. in profile menu (add remove button)
+[REMOVED] Password update page
+password reset page
 Email update, reset
-Password update, reset
 Email confirmation when field was changed
 Set database time to UTC and convert them in template
 keep statistics for visitors
-[LATER] upvotes and downvotes should have in the same table
+upvotes and downvotes should have in the same table
 [LATER] add lazy load functionality for website list pages
 [LATER] MultiLanguage Configuration for the site
 [LATER] add 'active' class for users to understand what section there are in.
