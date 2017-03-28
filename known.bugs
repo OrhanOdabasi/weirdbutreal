@@ -21,15 +21,16 @@
 [REMOVED] Password update page
 [REMOVED] add birthday and gender field to profile edit page
 [REMOVED] add active class for link items in profile menu
+[DELAYED] Set database time to UTC and convert them in template
 [PROGRESS] forgotten password reset page/functionality - secure_key
 Email update
 Email confirmation when field was changed
-Set database time to UTC and convert them in template
-keep statistics for visitors
 upvotes and downvotes should have in the same table
+keep statistics for visitors
 add a proper readme file with venv, django, heroku instructions
 push to github
 add a proper bugfix list
+[LATER] notificationsPage is loading slowly
 [LATER] add lazy load functionality for website list pages
 [LATER] MultiLanguage Configuration for the site
 [LATER] add 'active' class for users to understand what section there are in.

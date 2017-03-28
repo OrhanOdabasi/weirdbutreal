@@ -180,7 +180,7 @@ WeirdButReal - {{ post.title }}
         </ul>
       </div>
       <div class="post-timestamp">
-        added by <a href="{% url 'pplistPage' post.author %}"><strong>{{ post.author }}</strong></a> in {{ post.created }} -&nbsp&nbsp<a href="
+        added by <a href="{% url 'pplistPage' post.author %}"><strong>{{ post.author }}</strong></a> in {{ post.created|date:'M d, Y' }} -&nbsp&nbsp<a href="
         {% if post.category == 'Funny' %}
             {% url 'funnyPage' %}
         {% elif post.category == 'Mysterious' %}
