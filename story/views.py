@@ -612,22 +612,25 @@ def searchpost(request):
     return render(request, 'listing/search.html', context)
 
 
-# TODO: something wrong
 @login_required(redirect_field_name='redirect', login_url='/login')
 def editprofile(request):
     # edit your user profile
     qs = get_object_or_404(User, username=request.user)
-    #qs2 = get_object_or_404(Profile, user=request.user)
-    # burayı hallet
+    qs2 = get_object_or_404(Profile, user=request.user)
+
     if request.method == 'POST':
         if request.user.is_authenticated:
             form = UserEditForm(request.POST, instance=qs, prefix="formone")
-            if form.is_valid():
+            formtwo = ProfileEditForm(request.POST, instance=qs2, prefix="formtwo")
+            if form.is_valid() and formtwo.is_valid():
                 form.save()
+                formtwo.save()
                 messages.success(request, 'Your Profile has been updated successfully!')
             else:
                 messages.warning(request, form.errors.as_text())
+
     form = UserEditForm(instance=qs, prefix="formone")
+    formtwo = ProfileEditForm(instance=qs2, prefix="formtwo")
 
     latest_f, latest_m, latest_a = latestStories(eptm)
     if request.user.is_authenticated:
@@ -638,6 +641,7 @@ def editprofile(request):
 
     context = {
         'form' : form,
+        'formtwo': formtwo,
         'latest_f' : latest_f,
         'latest_m' : latest_m,
         'latest_a' : latest_a,
@@ -939,4 +943,10 @@ def removeVotes(request):
         q = StoryComment.objects.filter(pk=datacode, commentator=user)
         if q: q.delete()
 
+    return HttpResponse("")
+
+
+# TODO: password reset view
+def resetprocess(request):
+    # this method is for resetting the password or e-mail addr of users.
     return HttpResponse("")

@@ -19,7 +19,9 @@
 [REMOVED] responsive view is not available in mobile access
 [REMOVED] Removing upvotes, likes etc. in profile menu (add remove button)
 [REMOVED] Password update page
-forgotten password reset page/functionality
+[REMOVED] add birthday and gender field to profile edit page
+[REMOVED] add active class for link items in profile menu
+[PROGRESS] forgotten password reset page/functionality - secure_key
 Email update
 Email confirmation when field was changed
 Set database time to UTC and convert them in template

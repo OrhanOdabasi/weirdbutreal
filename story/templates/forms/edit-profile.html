@@ -5,6 +5,20 @@
   Change Your Profile Details
 {% endblock %}
 
+{% block scriptContainer %}
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      var bday = $("input[name='formtwo-birthday']");
+      bday.datepicker({
+        format: "yyyy-mm-dd",
+      });
+    });
+  </script>
+{% endblock %}
+
 
 {% block profile-details %}
   {% include "modules/profile_detail_menu.html" %}
@@ -27,16 +41,15 @@
 
       <form method="POST" action=""> {% csrf_token %}
         {% for field in form %}
-        <strong>{{ field.label }}</strong>
-        {{ field }}
+          <strong>{{ field.label }}:</strong>
+          {{ field }}
         {% endfor %}
-        <!--{#
-        {% for field in form2 %}
-        <strong>{{ field.label }}</strong>
-        {% if field.label == 'Birthday' %}- Format dd/mm/YYYY{% endif %}
-        {{ field }}
+        {% for field in formtwo %}
+          <strong>{{ field.label }}:</strong>
+          {% if field.label == 'Birthday' %}- Format YYYY-mm-dd{% endif %}
+          {{ field }}
         {% endfor %}
-        #}-->
+
         <button type="submit" class="btn btn-primary btn-lg btn-block" id="auth-button">Save Changes</button>
       </form>
 

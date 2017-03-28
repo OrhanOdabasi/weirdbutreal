@@ -33,4 +33,6 @@ urlpatterns = [
     url(r'^ajax/storyvote/(?P<shortcode>[\w]+)/$', StoryVote.as_view(), name="ajaxstoryvote"),
     url(r'^ajax/commentvote/(?P<shortcode>[\w]+)/$', CommentVote.as_view(), name="ajaxcommentvote"),
     url(r'^ajax/remove/$', views.removeVotes, name="removevotes"),
+    # TODO: password reset link
+    url(r'^reset/(?P<username>[a-zA-Z0-9_]+)/(?P<securekey>[a-zA-Z0-9]+)/$', views.resetprocess, name="resetPage"),
 ]

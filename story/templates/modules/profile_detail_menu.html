@@ -1,13 +1,19 @@
 <div class="right-content-wrapper post-container">
   <h4>Account Details</h4>
   <div class="list-group">
-    {# //TODO: add 'active' to class for current page #}
-    <a href="{% url 'editprofilePage' %}" class="list-group-item list-group-item-action"><strong>Change Profile Details</strong></a>
-    <a href="{% url 'changepasswordPage' %}" class="list-group-item list-group-item-action"><strong>Change Password</strong></a>
-    <a href="{% url 'myupvotesPage' %}" class="list-group-item list-group-item-action"><strong>My Upvotes</strong></a>
-    <a href="{% url 'mydownvotesPage' %}" class="list-group-item list-group-item-action"><strong>My Downvotes</strong></a>
-    <a href="{% url 'mypostsPage' %}" class="list-group-item list-group-item-action"><strong>My Stories</strong></a>
-    <a href="{% url 'mycommentsPage' %}" class="list-group-item list-group-item-action"><strong>My Comments</strong></a>
-    <a href="{% url 'notificationsPage' %}" class="list-group-item list-group-item-action"><strong>Notifications</strong></a>
+    {% url 'editprofilePage' as editpage %}
+    <a href="{{ editpage }}" class="list-group-item list-group-item-action {% if request.path == editpage %}active{% endif %}"><strong>Change Profile Details</strong></a>
+    {% url 'changepasswordPage' as passpage %}
+    <a href="{{ passpage }}" class="list-group-item list-group-item-action {% if request.path == passpage %}active{% endif %}"><strong>Change Password</strong></a>
+    {% url 'myupvotesPage' as upvotepage %}
+    <a href="{{ upvotepage }}" class="list-group-item list-group-item-action {% if request.path == upvotepage %}active{% endif %}"><strong>My Upvotes</strong></a>
+    {% url 'mydownvotesPage' as downvotepage %}
+    <a href="{{ downvotepage }}" class="list-group-item list-group-item-action {% if request.path == downvotepage %}active{% endif %}"><strong>My Downvotes</strong></a>
+    {% url 'mypostsPage' as postpage %}
+    <a href="{{ postpage }}" class="list-group-item list-group-item-action {% if request.path == postpage %}active{% endif %}"><strong>My Stories</strong></a>
+    {% url 'mycommentsPage' as commentpage %}
+    <a href="{{ commentpage }}" class="list-group-item list-group-item-action {% if request.path == commentpage %}active{% endif %}"><strong>My Comments</strong></a>
+    {% url 'notificationsPage' as notpage %}
+    <a href="{{ notpage }}" class="list-group-item list-group-item-action {% if request.path == notpage %}active{% endif %}"><strong>Notifications</strong></a>
   </div>
 </div>

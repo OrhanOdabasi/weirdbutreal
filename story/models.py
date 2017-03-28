@@ -35,7 +35,6 @@ class Story(models.Model):
     modified = models.DateTimeField(auto_now=True)
     reports = models.IntegerField(default=0, verbose_name='Reports')
 
-
     def save(self, *args, **kwargs):
         if self.urlcode is None or self.urlcode == '':
             self.urlcode = create_urlcode(self)
@@ -158,7 +157,7 @@ class Profile(models.Model):
         ('Male', 'Male'),
         ('Female', 'Female'),
     )
-    gender = models.CharField(max_length=10, choices=genders, blank=True, verbose_name='Gender')
+    gender = models.CharField(max_length=10, choices=genders, blank=True, null=True, verbose_name='Gender')
     birthday = models.DateField(null=True, blank=True, verbose_name='Birthday')
 
 

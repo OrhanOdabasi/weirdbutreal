@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from story.models import StoryUpvotes, CommentLike, Notification, StoryComment
+from story.models import StoryUpvotes, CommentLike, Notification, StoryComment, User, Profile
 
 @receiver(post_save, sender=StoryUpvotes)
 def upvote_notifier(sender, created, instance, **kwargs):
@@ -66,3 +66,13 @@ def dlt_comment_notification(sender, instance, **kwargs):
     q = Notification.objects.filter(conn=conn, notifier=notifier, kind=kind)
     if q:
         q.delete()
+
+
+@receiver(post_save, sender=User)
+def profile_details(sender, created, instance, **kwargs):
+    # it will create an profile object when a new user is created
+    if created:
+        user = instance
+        q = Profile.objects.filter(user=user)
+        if not q:
+            Profile.objects.create(user=user)
