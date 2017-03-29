@@ -8,7 +8,7 @@ from datetime import datetime
 class Story(models.Model):
 
     class Meta:
-        # It's the model for story posts
+        # Model for story posts
         verbose_name = 'Story'
         verbose_name_plural = 'Stories'
         ordering = ['created']
@@ -26,14 +26,11 @@ class Story(models.Model):
         ('Tr', 'Turkish')
     )
     language = models.CharField(choices=languages, max_length=10, verbose_name='Language')
-    upvotes = models.IntegerField(default=0, verbose_name='Upvotes')
-    downvotes = models.IntegerField(default=0, verbose_name='Downvotes')
-    popularity = models.IntegerField(blank=True, verbose_name='Popularity')
+    popularity = models.IntegerField(default=0, verbose_name='Popularity')
     urlcode = models.CharField(max_length=7, blank=True, unique=True, verbose_name='Link Code')
     active = models.BooleanField(default=True, verbose_name='Active')
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    reports = models.IntegerField(default=0, verbose_name='Reports')
 
     def save(self, *args, **kwargs):
         if self.urlcode is None or self.urlcode == '':
@@ -41,10 +38,8 @@ class Story(models.Model):
             self.popularity = int(self.upvotes) - int(self.downvotes)
         super(Story, self).save(*args, **kwargs)
 
-
     def __str__(self):
-        return "{author} posted '{title}'".format(author=self.author, title=self.title)
-
+        return "{title} - {urlcode}".format(title=self.title, urlcode=self.urlcode)
 
     def get_absolute_url(self):
         return reverse('storyPage', kwargs={'shortcode': self.urlcode})
@@ -68,10 +63,8 @@ class Notification(models.Model):
     read = models.BooleanField(default=False) # notitification read status
     notify_time = models.DateTimeField(auto_now_add=True, null=True)
 
-
     def __str__(self):
         return "Owner: {owner} - Notifier: {notifier}".format(owner=self.owner, notifier=self.notifier)
-
 
 
 class StoryUpvotes(models.Model):
@@ -109,7 +102,7 @@ class StoryDownvotes(models.Model):
 class StoryComment(models.Model):
 
     class Meta:
-        # It's the model of comments for stories.
+        # Model for comments of story
         verbose_name = 'Comment'
         ordering = ['-comment_date']
 
@@ -119,36 +112,28 @@ class StoryComment(models.Model):
     likes = models.IntegerField(default=0, verbose_name='Likes')
     comment_date = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self):
-        return "{commentator} commented on {comment_id} - '{storycode}'".format(commentator=self.commentator,
-                                                                                storycode=self.post_itself.title,
-                                                                                comment_id=self.pk)
-
+        return "{storycode} - {comment_id}".format(storycode=self.post_itself.title, comment_id=self.pk)
 
 
 class CommentLike(models.Model):
 
     class Meta:
-        # It's the Comment model for a post.
+        # Model for comment likes
         verbose_name = 'Comment Like'
         ordering = ['user']
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.ForeignKey(StoryComment, on_delete=models.CASCADE)
 
-
     def __str__(self):
-        return "{liker} liked {comment} of {commentator}".format(liker=self.user.username,
-                                                                comment=self.comment.pk,
-                                                                commentator=self.comment.commentator)
-
+        return "{story} - {comment} - {user}".format(story=self.comment.post_itself.urlcode, comment=self.comment.pk, user=self.user.username)
 
 
 class Profile(models.Model):
 
     class Meta:
-        # It's the additional model to User Model
+        # Model for Users' profile details
         verbose_name = 'User Profile Detail'
         ordering = ['user']
 
@@ -159,17 +144,16 @@ class Profile(models.Model):
     )
     gender = models.CharField(max_length=10, choices=genders, blank=True, null=True, verbose_name='Gender')
     birthday = models.DateField(null=True, blank=True, verbose_name='Birthday')
-
+    # TODO: Add Country info for every user
 
     def __str__(self):
-        return "User Details for: {}".format(self.user.username)
-
+        return "User Details for: {user}".format(user=self.user.username)
 
 
 class PostReport(models.Model):
 
     class Meta:
-        # It's the report model for violations
+        # Model for post reports
         verbose_name = 'Post Report'
         ordering = ['story']
 
@@ -177,6 +161,5 @@ class PostReport(models.Model):
     report_text = models.TextField(max_length=300, verbose_name='Report')
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
-
     def __str__(self):
-        return self.story.title
+        return "{urlcode} - {story_title}".format(urlcode=self.story.urlcode, story_title=self.story.title)
