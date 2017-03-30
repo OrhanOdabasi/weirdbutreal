@@ -1,11 +1,11 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from story.models import StoryUpvotes, CommentLike, Notification, StoryComment, User, Profile
+from story.models import Vote, CommentLike, Notification, StoryComment, User, Profile
 
-@receiver(post_save, sender=StoryUpvotes)
+@receiver(post_save, sender=Vote)
 def upvote_notifier(sender, created, instance, **kwargs):
     #upvote notification method
-    if created:
+    if created and instance.vote == "Upvote":
         owner = instance.story.author
         notifier = instance.user.username
         kind = "Story"
@@ -14,14 +14,15 @@ def upvote_notifier(sender, created, instance, **kwargs):
         q.save()
 
 
-@receiver(post_delete, sender=StoryUpvotes)
+@receiver(post_delete, sender=Vote)
 def dlt_story_notification(sender, instance, **kwargs):
     # this method deletes notification if upvote instance is deleted (downvoted)
-    conn = instance.story.urlcode
-    notifier = instance.user.username
-    q = Notification.objects.filter(conn=conn, notifier=notifier)
-    if q:
-        q.delete()
+    if instance.vote == "Upvote":
+        conn = instance.story.urlcode
+        notifier = instance.user.username
+        q = Notification.objects.filter(conn=conn, notifier=notifier)
+        if q:
+            q.delete()
 
 
 @receiver(post_save, sender=CommentLike)

@@ -1,8 +1,9 @@
 {% load static %}
+{% load custom_filters %}
 
+<!--FIXME: fix js functions according to new vote model -->
 {% block scriptContainer %}
   <script type="text/javascript">
-
     // This function controls vote status and the button's color.
     function buttonVote(urlcode) {
         // This request accesses vote db
@@ -13,7 +14,8 @@
           url: "/ajax/storyvote/" + urlcode + "/",
           datatype: 'json',
           success: function(data) {
-            if (data['voted_up']) {
+            var response = data["vote_status"]
+            if (response == "Upvote") {
               $("button[id='button-up'][data-story='" + urlcode + "']").css({
                 backgroundColor: '#0f3c51',
                 color: 'white',
@@ -23,7 +25,7 @@
                 color: '#333',
               });
             }
-            if (data['voted_down']) {
+            if (response == "Downvote") {
               $("button[id='button-down'][data-story='" + urlcode + "']").css({
                 backgroundColor: '#0f3c51',
                 color: 'white',
@@ -32,7 +34,6 @@
                 backgroundColor: '#fff',
                 color: '#333',
               });
-
             }
           }
         });
@@ -60,23 +61,39 @@
             csrfmiddlewaretoken: '{{ csrf_token }}',
           },
           success: function(data) {
-            if (data['auth']) {
+            var response = data["response"]
+            var buttoncolor = $("button[id='button-up'][data-story='" + urlcode + "']").css('backgroundColor')
+            if (response != "NotAuthenticated") {
               console.log("Login authentication granted!");
-              if (data['resp_code'] === 'exists') {
-                $("button[id='" + bttn + "'][data-story='" + urlcode + "']").popover('toggle');
+              if (response == 'Upvote') {
+                $("button[id='button-up'][data-story='" + urlcode + "']").css({
+                  backgroundColor: '#0f3c51',
+                  color: 'white',
+                });
+                $("button[id='button-down'][data-story='" + urlcode + "']").css({
+                  backgroundColor: '#fff',
+                  color: '#333',
+                });
+                if (buttoncolor != $("button[id='button-up'][data-story='" + urlcode + "']").css('backgroundColor')) {
+                  var cntr = $("#upvote-counter"+urlcode).text();
+                  $("#upvote-counter"+urlcode).text(parseInt(cntr)+1);
+                }
               }
-              if (data['resp_code'] === 'error') {
-                $("button[id='" + bttn + "'][data-story='" + urlcode + "']").popover({content: 'Server Error! Please report us!'});
-              }
-              if (data['resp_code'] == 'upvoted') {
-                buttonVote(urlcode);
-                var cntr = $("#upvote-counter"+urlcode).text()
-                $("#upvote-counter"+urlcode).text(parseInt(cntr)+1)
-              }
-              if (data['resp_code'] == 'downvoted') {
-                buttonVote(urlcode);
-                var cntr = $("#upvote-counter"+urlcode).text()
-                $("#upvote-counter"+urlcode).text(parseInt(cntr)-1)
+              if (response == 'Downvote') {
+                $("button[id='button-down'][data-story='" + urlcode + "']").css({
+                  backgroundColor: '#0f3c51',
+                  color: 'white',
+                });
+                $("button[id='button-up'][data-story='" + urlcode + "']").css({
+                  backgroundColor: '#fff',
+                  color: '#333',
+                });
+                if (buttoncolor != $("button[id='button-up'][data-story='" + urlcode + "']").css('backgroundColor')) {
+                  var cntr = $("#upvote-counter"+urlcode).text();
+                  if (parseInt(cntr) != 0) {
+                    $("#upvote-counter"+urlcode).text(parseInt(cntr)-1);
+                  }
+                }
               }
             }
             else {
@@ -131,7 +148,7 @@
     <div class="post-elements">
       <div class="post-stats">
         <p>
-          <span class="highlighted" id="upvote-counter{{ story.urlcode }}">{{ story.storyupvotes_set.count }}</span> upvotes
+          <span class="highlighted" id="upvote-counter{{ story.urlcode }}">{{ story.vote_set|upvote_count }}</span> upvotes
           <span class="highlighted" id="comment-counter{{ story.urlcode }}">{{ story.storycomment_set.count }}</span> <a href="{{ story.get_absolute_url }}#comments">comments</a>
         </p>
       </div>

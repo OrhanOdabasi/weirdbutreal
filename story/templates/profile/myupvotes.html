@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 
 {% block title %}
   My Upvotes
@@ -8,12 +9,12 @@
 <script type="text/javascript">
 $(document).ready(function() {
   $(".remove-like-button").click(function(e){
-    var datacode = $(this).attr("id")
-    $("#" + datacode + "-container").hide(500, function() {
+    var urlcode = $(this).attr("id")
+    $("#" + urlcode + "-container").hide(500, function() {
       $.ajax({
         type: "POST",
         url: '{% url 'removevotes' %}',
-        data: {datacat: 'storyupvote', datacode: datacode, csrfmiddlewaretoken: '{{ csrf_token }}'},
+        data: {datacat: 'storyupvote', urlcode: urlcode, csrfmiddlewaretoken: '{{ csrf_token }}'},
         success: function(){
           console.log("successful");
         }
@@ -43,7 +44,7 @@ $(document).ready(function() {
         <div>
           <ul class="story-stats-sm">
             <li> <strong>Category: </strong>{{ upvote_story.story.category }}</li>
-            <li> <strong>Total Upvotes: </strong>{{ upvote_story.story.storyupvotes_set.count }}</li>
+            <li> <strong>Total Upvotes: </strong>{{ upvote_story.story.vote_set|upvote_count }}</li>
             <li><a href="#" style="color:red;" class="remove-like-button" id="{{ upvote_story.story.urlcode }}"><span class="glyphicon glyphicon-remove"></span>Remove</a></li>
           </ul>
         </div>

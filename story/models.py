@@ -35,7 +35,6 @@ class Story(models.Model):
     def save(self, *args, **kwargs):
         if self.urlcode is None or self.urlcode == '':
             self.urlcode = create_urlcode(self)
-            self.popularity = int(self.upvotes) - int(self.downvotes)
         super(Story, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -67,36 +66,20 @@ class Notification(models.Model):
         return "Owner: {owner} - Notifier: {notifier}".format(owner=self.owner, notifier=self.notifier)
 
 
-class StoryUpvotes(models.Model):
+class Vote(models.Model):
 
     class Meta:
-        # It's the model that shows who upvoted the post.
-        verbose_name = 'Story Upvote'
-        ordering = ['user']
+        # Model for story Votes
+        verbose_name = "Votes"
+        unique_together = ('user', 'story')
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     story = models.ForeignKey(Story, on_delete=models.CASCADE)
-
-
-    def __str__(self):
-        return "{user} upvoted {post}".format(user=self.user.username, post=self.story.title)
-
-
-
-class StoryDownvotes(models.Model):
-
-    class Meta:
-        #It's the model that shows who downvoted the post.
-        verbose_name = 'Story Downvote'
-        ordering = ['user']
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    story = models.ForeignKey(Story, on_delete=models.CASCADE)
-
-
-    def __str__(self):
-        return "{user} downvoted {post}".format(user=self.user.username, post=self.story.title)
-
+    choices = (
+        ('Up', 'Upvote'),
+        ('Down', 'Downvote'),
+    )
+    vote = models.CharField(choices=choices, max_length=10, verbose_name='Vote')
 
 
 class StoryComment(models.Model):

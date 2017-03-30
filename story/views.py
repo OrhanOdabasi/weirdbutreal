@@ -8,11 +8,11 @@ from django.contrib.auth.models import User
 from django.db.models import Q, Count
 from django.contrib import messages
 from django.views import View
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import (Story,
                     StoryComment,
-                    StoryUpvotes,
-                    StoryDownvotes,
+                    Vote,
                     CommentLike,
                     Profile,
                     Notification)
@@ -322,7 +322,7 @@ def login_view(request):
     }
     return render(request, 'registration/login.html', context)
 
-
+@login_required(redirect_field_name='redirect', login_url='/login')
 def logout_view(request):
     # Logout page
     logout(request)
@@ -499,7 +499,7 @@ def myupvotes(request):
     # users' post upvotes list
     if request.user.is_authenticated:
         user = User.objects.get(username=request.user)
-        my_upvotes = StoryUpvotes.objects.filter(user=user)
+        my_upvotes = Vote.objects.filter(user=user, vote="Upvote")
     else:
         return redirect(reverse('loginPage'))
 
@@ -534,7 +534,7 @@ def mydownvotes(request):
     # users' post upvotes list
     if request.user.is_authenticated:
         user = User.objects.get(username=request.user)
-        my_downvotes = StoryDownvotes.objects.filter(user=user)
+        my_downvotes = Vote.objects.filter(user=user, vote="Downvote")
     else:
         return redirect(reverse('loginPage'))
 
@@ -688,6 +688,7 @@ def profilepostlist(request, profile):
 
 def toplists(request, cat):
     # most popular posts list.
+    # TODO: Remove cat_name
     if cat == 'mystery':
         stories = Story.objects.filter(category='Mysterious').order_by('-popularity')
         cat_name = 'Mysterious'
@@ -808,83 +809,32 @@ def deletepost(request):
 class StoryVote(View):
     # this class-based view is for ajax requests for vote buttons
     def get(self, request, shortcode, *args, **kwargs):
-        # retreive users vote data
-        # return them as true/false
-        # return as json response (urlcode, voted_down, voted_up)
-        story_vote = {}
+        # retrieve users vote data
+        response = {}
         story = Story.objects.get(urlcode=shortcode)
-        qs_up = StoryUpvotes.objects.filter(
-            Q(user=self.request.user) &
-            Q(story=story))
-        voted_up = qs_up.exists()
-        story_vote['voted_up'] = voted_up
-
-        qs_down = StoryDownvotes.objects.filter(
-            Q(user=self.request.user) &
-            Q(story=story))
-        voted_down = qs_down.exists()
-        story_vote['voted_down'] = voted_down
-        story_vote['urlcode'] = shortcode
-
-        return JsonResponse(story_vote)
+        try:
+            vote_status = Vote.objects.get(user=self.request.user, story=story)
+            response["vote_status"] = vote_status.vote
+        except ObjectDoesNotExist:
+            response["vote_status"] = "DoesNotExist"
+        return JsonResponse(response)
 
     def post(self, request, shortcode, *args, **kwargs):
         #post request for upvote-model update
         response = {}
         story = Story.objects.get(urlcode=shortcode)
-
-        # checking authentication status
         if self.request.user.is_authenticated:
-            response['auth'] = True
-            vote = request.POST.get('bttn')
-            # if button-up is pressed then do the following
-            if vote == 'button-up':
-                qs_up = StoryUpvotes.objects.filter(
-                    Q(user=self.request.user) &
-                    Q(story=story))
-                # if there is an upvote in db already, then don't do anything
-                if qs_up.exists():
-                    response['resp_code'] = 'exists'
-                # if user haven't upvoted already, delete downvote if there is one then create upvote
-                else:
-                    try:
-                        qs_down = StoryDownvotes.objects.filter(
-                            Q(user=self.request.user) &
-                            Q(story=story))
-                        voted_down = qs_down.exists()
-                        # if there is downvote, delete it
-                        if voted_down:
-                            qs_down.delete()
-                        # create a new upvote object
-                        StoryUpvotes.objects.create(user=self.request.user, story=story)
-                        response['resp_code'] = 'upvoted'
-                    except:
-                        response['resp_code'] = 'error'
-            # if button-down is pressed then do the following
-            elif vote == 'button-down':
-                qs_down = StoryDownvotes.objects.filter(
-                    Q(user=self.request.user) &
-                    Q(story=story))
-                # if there is an downvote in db already, then don't do anything
-                if qs_down.exists():
-                    response['resp_code'] = 'exists'
-                else:
-                    try:
-                        qs_up = StoryUpvotes.objects.filter(
-                            Q(user=self.request.user) &
-                            Q(story=story))
-                        voted_up = qs_up.exists()
-                        # if there is upvote, delete it
-                        if voted_up:
-                            qs_up.delete()
-                        # create a new downvote object
-                        StoryDownvotes.objects.create(user=self.request.user, story=story)
-                        response['resp_code'] = 'downvoted'
-                    except:
-                        response['resp_code'] = 'error'
-        #if authentication is not passed
+            vote_req = self.request.POST.get("bttn") # NOTE: maybe 'self' may cause error
+            if vote_req == 'button-up':
+                vote = "Upvote"
+            elif vote_req == 'button-down':
+                vote = "Downvote"
+            user = self.request.user
+            defaults = {'vote' : vote}
+            obj, created = Vote.objects.update_or_create(user=user, story=story, defaults=defaults)
+            response["response"] = obj.vote
         else:
-            response['auth'] = False
+            response["response"] = "NotAuthenticated"
         return JsonResponse(response)
 
 
@@ -899,7 +849,6 @@ class CommentVote(View):
             if count:
                 commentlikes.append(comment.pk)
             #comment_like[comm.pk] = comm.commentlike_set.count
-
         return JsonResponse(commentlikes, safe=False)
 
     def post(self, request, shortcode, *args, **kwargs):
@@ -924,25 +873,23 @@ class CommentVote(View):
 
 
 @login_required(redirect_field_name='redirect', login_url='/login')
-def removeVotes(request):
+def removevotes(request):
     # removes the vote or like objects in profile menu
-    print(request.POST)
     datacat = request.POST.get("datacat")
-    datacode = request.POST.get("datacode")
+    urlcode = request.POST.get("urlcode")
     user = request.user
 
     if datacat == 'storyupvote':
-        story = Story.objects.filter(urlcode=datacode)
-        q = StoryUpvotes.objects.filter(user=user, story=story)
+        story = Story.objects.filter(urlcode=urlcode)
+        q = Vote.objects.filter(user=user, story=story, vote='Upvote')
         if q: q.delete()
     elif datacat == 'storydownvote':
-        story = Story.objects.filter(urlcode=datacode)
-        q = StoryDownvotes.objects.filter(user=user, story=story)
+        story = Story.objects.filter(urlcode=urlcode)
+        q = Vote.objects.filter(user=user, story=story, vote="Downvote")
         if q: q.delete()
     elif datacat == 'comment':
         q = StoryComment.objects.filter(pk=datacode, commentator=user)
         if q: q.delete()
-
     return HttpResponse("")
 
 

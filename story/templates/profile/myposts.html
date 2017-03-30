@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load custom_filters %}
 
 {% block title %}
   List of Your Posts
@@ -29,7 +29,7 @@
           <ul class="story-stats-sm">
             <li> <strong>Category: </strong>{{ story.category }}</li>
             <li> <strong>Date: </strong>{{ story.modified|date:'M d, Y' }}</li>
-            <li> <strong>Upvotes: </strong>{{ story.storyupvotes_set.count }}</li>
+            <li> <strong>Upvotes: </strong>{{ story.vote_set|upvote_count }}</li>
             <li> <strong>Comments: </strong>{{ story.storycomment_set.count }}</li>
           </ul>
         </div>

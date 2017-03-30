@@ -16,6 +16,7 @@
         {% for noty in notification_list  %}
           <li>
             <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+            <!--TODO: add notifier page url -->
             <a href=""><span style="font-weight: bold;">{{ noty.notifier }}</span></a>
             {% if noty.kind == "Story" %}
               upvoted

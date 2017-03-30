@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load custom_filters %}
 
 {% block title %}
 WeirdButReal - {{ post.title }}
@@ -14,7 +14,6 @@ WeirdButReal - {{ post.title }}
         type: "GET",
         url: "{% url 'ajaxcommentvote' post.urlcode %}",
         success: function(data) {
-          console.log(data);
           var comments = $(".comment-like")
           if (data.length != 0) {
             $.each(data, function(index, value) {
@@ -28,18 +27,18 @@ WeirdButReal - {{ post.title }}
       });
     }
 
-
     // This function controls vote status and the button's color.
     function buttonVote() {
         // This request accesses vote db
-        // returns a json (urlcode, voted_down, voted_up)
+        // returns a json (urlcode,vote_status)
         // changes buttons' color
         $.ajax({
           type: "GET",
           url: "{% url 'ajaxstoryvote' post.urlcode %}",
           datatype: 'json',
-          success: function(data) {
-            if (data['voted_up']) {
+          success: function(response) {
+            var data = response["vote_status"]
+            if (data == "Upvote") {
               $('#button-up').css({
                 backgroundColor: '#0f3c51',
                 color: 'white',
@@ -49,7 +48,7 @@ WeirdButReal - {{ post.title }}
                 color: '#333',
               });
             }
-            if (data['voted_down']) {
+            if (data == "Downvote") {
               $('#button-down').css({
                 backgroundColor: '#0f3c51',
                 color: 'white',
@@ -117,24 +116,38 @@ WeirdButReal - {{ post.title }}
             bttn: bttn,
             csrfmiddlewaretoken: '{{ csrf_token }}',
           },
-          success: function(data) {
-            if (data['auth']) {
-              console.log("Login Authantication granted");
-              if (data['resp_code'] == 'exists') {
-                $('#'+bttn).popover('toggle');
+          success: function(response) {
+            var buttoncolor = $('#button-up').css('backgroundColor')
+            if (response['response'] != "NotAuthenticated") {
+              if (response['response'] == 'Upvote') {
+                $('#button-up').css({
+                  backgroundColor: '#0f3c51',
+                  color: 'white',
+                });
+                $('#button-down').css({
+                  backgroundColor: '#fff',
+                  color: '#333',
+                });
+                if (buttoncolor != $('#button-up').css('backgroundColor')) {
+                  var cntr = $("#upvote-counter").text();
+                  $("#upvote-counter").text(parseInt(cntr)+1);
+                }
               }
-              if (data['resp_code'] == 'error') {
-                $('#'+bttn).popover('toggle', content='Server side error! Report this error, please.');
-              }
-              if (data['resp_code'] == 'upvoted') {
-                buttonVote();
-                var cntr = $("#upvote-counter").text()
-                $("#upvote-counter").text(parseInt(cntr)+1)
-              }
-              if (data['resp_code'] == 'downvoted') {
-                buttonVote();
-                var cntr = $("#upvote-counter").text()
-                $("#upvote-counter").text(parseInt(cntr)-1)
+              if (response['response'] == 'Downvote') {
+                $('#button-down').css({
+                  backgroundColor: '#0f3c51',
+                  color: 'white',
+                });
+                $('#button-up').css({
+                  backgroundColor: '#fff',
+                  color: '#333',
+                });
+                if (buttoncolor != $('#button-up').css('backgroundColor')) {
+                  var cntr = $("#upvote-counter").text();
+                  if (parseInt(cntr) != 0) {
+                    $("#upvote-counter").text(parseInt(cntr)-1);
+                  }
+                }
               }
             }
             else {
@@ -194,7 +207,7 @@ WeirdButReal - {{ post.title }}
     <div class="post-elements">
       <div class="post-stats">
         <p>
-          <span class="highlighted" id="upvote-counter">{{ post.storyupvotes_set.count }}</span> upvotes
+          <span class="highlighted" id="upvote-counter">{{ post.vote_set|upvote_count }}</span> upvotes
           <span class="highlighted" id="comment-counter">{{ post.storycomment_set.count }}</span> comments
         </p>
       </div>

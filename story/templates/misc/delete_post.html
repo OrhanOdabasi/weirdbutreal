@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 
 {% block title %}
   Delete Post:
@@ -14,8 +15,8 @@
     <p>{{ post.title }}</p>
     <h4>Statistics</h4>
     <p>Post Date: {{ post.created|date:"d M Y" }}</p>
-    <p>Post Upvotes: {{ post.upvotes }}</p>
-    <p>Post Downvotes:  {{ post.downvotes }}</p>
+    <p>Post Upvotes: {{ post.vote_set|upvote_count }}</p>
+    <p>Post Downvotes:  {{ post.vote_set|downvote_count }}</p>
     <p>Post Comments: {{ post.storycomment_set.count }}</p>
     <br>
     {% if messages %}

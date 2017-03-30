@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 
 {% block title %}
   My Comments
@@ -47,7 +48,7 @@ $(document).ready(function() {
           <ul class="story-stats-sm">
             <li> <strong>Category: </strong>{{ comment.post_itself.category }}</li>
             <li> <strong>Date: </strong>{{ comment.comment_date|date:'M d, Y' }}</li>
-            <li> <strong>Upvotes: </strong>{{ comment.post_itself.storyupvotes_set.count }}</li>
+            <li> <strong>Upvotes: </strong>{{ comment.post_itself.vote_set|upvote_count }}</li>
             <li><a href="#" style="color:red;" class="remove-like-button" id="{{ comment.pk }}"><span class="glyphicon glyphicon-remove"></span>Remove</a></li>
           </ul>
         </div>
