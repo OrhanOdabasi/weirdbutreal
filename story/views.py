@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
@@ -15,7 +16,8 @@ from .models import (Story,
                     Vote,
                     CommentLike,
                     Profile,
-                    Notification)
+                    Notification,
+                    Confirmation)
 from .forms import (PostStoryForm,
                     LoginForm,
                     SignupForm,
@@ -165,8 +167,8 @@ def notifications(request):
     }
     return render(request, 'profile/notifications.html', context)
 
-"""
 # TODO: Undone profile system
+"""
 @login_required(redirect_field_name='redirect', login_url='/login')
 def profile(request):
     # Users' profile details
@@ -340,9 +342,9 @@ def register(request):
         password = form.cleaned_data.get('password')
         new_user.set_password(password)
         new_user.save()
-
         user = authenticate(username=new_user.username, password=password)
         login(request, user)
+        # TODO: add sendmail functions
         return redirect(reverse('editprofilePage'))
 
     latest_f, latest_m, latest_a = latestStories(eptm)
@@ -405,9 +407,14 @@ def resetpassword(request):
         return redirect(reverse('profilePage'))
     form = resetPassword(request.POST or None)
     if form.is_valid():
+        email_addr = request.POST.get("email_addr")
+        user = User.objects.get(email=email_addr)
+        have_key = Confirmation.objects.filter(user=user)
+        if not have_key:
+            Confirmation.objects.create(user=user)
         #TODO: send mail
-        print("valid")
-        msg = "We have sent you a mail! Check your mailbox and click the link!"
+
+        msg = "We have sent you a mail. Please check your mailbox."
         messages.success(request, msg)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
@@ -616,21 +623,44 @@ def searchpost(request):
 def editprofile(request):
     # edit your user profile
     qs = get_object_or_404(User, username=request.user)
+    email_addr = qs.email # It's for checking email if it's changed
     qs2 = get_object_or_404(Profile, user=request.user)
+
+    # display a message for unconfirmed accounts
+    confirm_status = qs2.confirmed
+    if not confirm_status:
+        msg = "We sent you a confirmation mail. Please confirm your e-mail address."
+        messages.warning(request, msg)
 
     if request.method == 'POST':
         if request.user.is_authenticated:
             form = UserEditForm(request.POST, instance=qs, prefix="formone")
             formtwo = ProfileEditForm(request.POST, instance=qs2, prefix="formtwo")
-            if form.is_valid() and formtwo.is_valid():
+
+            if form.is_valid() and formtwo.is_valid() and confirm_status:
+                email_field = request.POST.get("formone-email")
+                if email_field != email_addr:
+                    f = formtwo.save(commit=False)
+                    f.confirmed = False
+                    f.save()
+                    Confirmation.objects.create(user=request.user)
+                    # TODO: add sendmail functionality
+
+
+                    msg = "You should confirm your e-mail to change you details!"
+                    messages.warning(request, msg)
+                else:
+                    formtwo.save()
                 form.save()
-                formtwo.save()
                 messages.success(request, 'Your Profile has been updated successfully!')
-            else:
-                messages.warning(request, form.errors.as_text())
+            # User must not change details if account is not confirmed yet.
+            elif not confirm_status:
+                msg = "You should confirm your e-mail to change you details!"
+                messages.warning(request, msg)
 
     form = UserEditForm(instance=qs, prefix="formone")
     formtwo = ProfileEditForm(instance=qs2, prefix="formtwo")
+
 
     latest_f, latest_m, latest_a = latestStories(eptm)
     if request.user.is_authenticated:
@@ -893,7 +923,43 @@ def removevotes(request):
     return HttpResponse("")
 
 
-# TODO: password reset view
-def resetprocess(request):
-    # this method is for resetting the password or e-mail addr of users.
+def confirmation(request, username, securekey):
+    # Confirms the secure key
+    user = get_object_or_404(User, username=username)
+    if request.user.is_authenticated:
+        # if another user is authenticated, redirect to profile edit page
+        if request.user.username != user.username:
+            messages.warning(request, "You can confirm your e-mail address only!")
+        else:
+            qs = Confirmation.objects.filter(user=user)
+            if qs:
+                c = Confirmation.objects.get(user=user)
+                if securekey == c.key:
+                    chng = Profile.objects.get(user=user)
+                    chng.confirmed = True
+                    chng.save()
+                    messages.info(request, "You confirmed your e-mail successfully!")
+                else:
+                    messages.warning(request, "Confirmation key is invalid! Check your link, please!")
+            else:
+                messages.info(request, "Your account is already confirmed!")
+        return redirect(reverse("editprofilePage"))
+    else:
+        p = Profile.objects.get(user=user)
+        if p.confirmed:
+            messages.info(request, "You account is already confirmed! You can login now!")
+        if not p.confirmed:
+            c = Confirmation.objects.get(user=user)
+            if securekey == c.key:
+                p.confirmed = True
+                p.save()
+                messages.info(request, "You confirmed your e-mail successfully! You can login now!")
+            else:
+                messages.warning(request, "Confirmation key is invalid! Check your link, please!")
+        return redirect(reverse("homePage"))
+
+
+# TODO: reset password view undone
+def resetpswd(request):
+    # reset user's password and redirect to usereditpage
     return HttpResponse("")

@@ -99,14 +99,14 @@ class SignupForm(forms.ModelForm):
             raise forms.ValidationError("Password must be at least 6 characters!")
         if len(password) > 20:
             raise forms.ValidationError("Password must be max. 20 characters!")
+        if password == "" or password is None:
+            raise forms.ValidationError("You cannot leave password field empty!")
         return password
 
     def clean_password2(self):
         # It checks if emails fields are identical.
         password = self.cleaned_data.get('password')
         password2 = self.cleaned_data.get('password2')
-        if password == "" or password is None:
-            raise ValidationError("You cannot leave Password field empty!")
         if password != password2:
             raise forms.ValidationError("Passwords are not matched")
         return password2

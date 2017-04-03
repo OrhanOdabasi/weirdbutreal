@@ -1,7 +1,6 @@
 {% load static %}
 {% load custom_filters %}
 
-<!--FIXME: fix js functions according to new vote model -->
 {% block scriptContainer %}
   <script type="text/javascript">
     // This function controls vote status and the button's color.
@@ -108,6 +107,12 @@
     });
   </script>
 {% endblock %}
+
+{% if messages %}
+  {% for message in messages  %}
+    <div class="alert alert-{{ message.tags }}" style="text-align:center; font-weight:bold;" role="alert">{{ message }}</div>
+  {% endfor %}
+{% endif %}
 
 {% for story in stories %}
   <div class="post-container">

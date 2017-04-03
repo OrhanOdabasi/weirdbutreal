@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from story.models import Vote, CommentLike, Notification, StoryComment, User, Profile
+from story.models import Vote, CommentLike, Notification, StoryComment, User, Profile, Confirmation
 
 @receiver(post_save, sender=Vote)
 def upvote_notifier(sender, created, instance, **kwargs):
@@ -58,6 +58,7 @@ def comment_notification(sender, created, instance, **kwargs):
         q = Notification(owner=owner, notifier=notifier, kind=kind, conn=conn)
         q.save()
 
+
 @receiver(post_delete, sender=StoryComment)
 def dlt_comment_notification(sender, instance, **kwargs):
     # this method deletes the notification if comment instance is removed form db.
@@ -77,3 +78,20 @@ def profile_details(sender, created, instance, **kwargs):
         q = Profile.objects.filter(user=user)
         if not q:
             Profile.objects.create(user=user)
+
+
+@receiver(post_save, sender=Profile)
+def create_confirmation(sender, created, instance, **kwargs):
+    # it triggers confirmation model to create a key for the user
+    user = instance.user
+    if created:
+        q = Confirmation(user=user)
+        q.save()
+    else:
+        if not instance.confirmed:
+            q = Confirmation(user=user)
+            q.save()
+        else:
+            qs = Confirmation.objects.filter(user=user)
+            if qs:
+                qs.delete()

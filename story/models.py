@@ -3,6 +3,7 @@ from .urlgenerator import create_urlcode
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from datetime import datetime
+from story.resetkey import secure_key
 
 
 class Story(models.Model):
@@ -127,7 +128,8 @@ class Profile(models.Model):
     )
     gender = models.CharField(max_length=10, choices=genders, blank=True, null=True, verbose_name='Gender')
     birthday = models.DateField(null=True, blank=True, verbose_name='Birthday')
-    # TODO: Add Country info for every user
+    confirmed = models.BooleanField(default=False, verbose_name="Email Confirmed")
+    # TODO: Add Country info for e very user
 
     def __str__(self):
         return "User Details for: {user}".format(user=self.user.username)
@@ -146,3 +148,21 @@ class PostReport(models.Model):
 
     def __str__(self):
         return "{urlcode} - {story_title}".format(urlcode=self.story.urlcode, story_title=self.story.title)
+
+
+class Confirmation(models.Model):
+
+    class Meta:
+        # Model for storing e-mail and password confirmatin key
+        verbose_name = "Confirmation Key"
+        ordering = ["user"]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    key = models.CharField(max_length = 69, unique=True, verbose_name="Key")
+
+    def __str__(self):
+        return self.key
+
+    def save(self, *args, **kwargs):
+        self.key = secure_key(self)
+        super(Confirmation, self).save(*args, **kwargs)
