@@ -22,10 +22,14 @@
 [REMOVED] add birthday and gender field to profile edit page
 [REMOVED] add active class for link items in profile menu
 [DELAYED] Set database time to UTC and convert them in template
-[PROGRESS] forgotten password reset page/functionality - secure_key
-Email update
-Email confirmation when field was changed
-upvotes and downvotes should have in the same table
+[REMOVED] upvotes and downvotes should have in the same table
+[REMOVED] email confirmation when user signs up
+[REMOVED] Email confirmation when field was changed
+[REMOVED] key generating for forgotten password
+[REMOVED] add confirmation model instance when confirmed status is changed
+[REMOVED] confirmation functionality
+[REMOVED] password reset functionality
+sendmail functionality
 keep statistics for visitors
 add a proper readme file with venv, django, heroku instructions
 push to github
@@ -33,7 +37,6 @@ add a proper bugfix list
 [LATER] notificationsPage is loading slowly
 [LATER] add lazy load functionality for website list pages
 [LATER] MultiLanguage Configuration for the site
-[LATER] add 'active' class for users to understand what section there are in.
 [LATER] add more pagination links
 [LATER] last 2 voters can be shown to users in single post menu
 [LATER] Admin panel is not very suitable for listing models' objects.

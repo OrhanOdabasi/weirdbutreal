@@ -5,7 +5,9 @@ from .models import (Story,
                     CommentLike,
                     PostReport,
                     Notification,
-                    Vote)
+                    Vote,
+                    Confirmation,
+                    PasswordReset)
 
 # Register your models here.
 
@@ -16,3 +18,5 @@ admin.site.register(CommentLike)
 admin.site.register(PostReport)
 admin.site.register(Notification)
 admin.site.register(Vote)
+admin.site.register(Confirmation)
+admin.site.register(PasswordReset)

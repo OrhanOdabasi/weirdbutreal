@@ -99,14 +99,14 @@ class SignupForm(forms.ModelForm):
             raise forms.ValidationError("Password must be at least 6 characters!")
         if len(password) > 20:
             raise forms.ValidationError("Password must be max. 20 characters!")
+        if password == "" or password is None:
+            raise forms.ValidationError("You cannot leave password field empty!")
         return password
 
     def clean_password2(self):
         # It checks if emails fields are identical.
         password = self.cleaned_data.get('password')
         password2 = self.cleaned_data.get('password2')
-        if password == "" or password is None:
-            raise ValidationError("You cannot leave Password field empty!")
         if password != password2:
             raise forms.ValidationError("Passwords are not matched")
         return password2
@@ -203,7 +203,7 @@ class ProfileEditForm(forms.ModelForm):
         }
 
 
-class LeaveComment(forms.ModelForm):
+class CommentForm(forms.ModelForm):
     # It allows users to leave a comment on a post.
     class Meta:
 
@@ -220,7 +220,7 @@ class LeaveComment(forms.ModelForm):
         }
 
 
-class ReportStory(forms.ModelForm):
+class ReportStoryForm(forms.ModelForm):
     # It allow users to report any of the posts.
     class Meta:
         model = PostReport
@@ -234,7 +234,7 @@ class ReportStory(forms.ModelForm):
         }
 
 
-class resetPassword(forms.Form):
+class ForgottenPasswordForm(forms.Form):
     # it's a password reset form
     email_addr = forms.EmailField(label="E-mail address:", widget = forms.EmailInput(attrs={
         'class': 'form-control',
@@ -246,10 +246,14 @@ class resetPassword(forms.Form):
         qs = User.objects.filter(email=email_addr)
         if qs.count() == 0:
             raise forms.ValidationError("This e-mail address doesn't exist!")
-        return super(resetPassword, self).clean(*args, **kwargs)
+        user = qs.first()
+        confirm_status = Profile.objects.get(user=user).confirmed
+        if not confirm_status:
+            raise forms.ValidationError("You cannot reset the password unless you confirm your e-mail address!")
+        return super(ForgottenPasswordForm, self).clean(*args, **kwargs)
 
 
-class changePassword(forms.Form):
+class ChangePasswordForm(forms.Form):
     # it's a form to change existing password
     old_password = forms.CharField(label="Old Password:", widget = forms.PasswordInput(attrs={
         'class': 'form-control',
@@ -279,5 +283,30 @@ class changePassword(forms.Form):
             raise forms.ValidationError("Password must be at least 6 characters!")
         elif len(new_password) > 20:
             raise forms.ValidationError("Password must be max. 20 characters!")
-
         return super(changePassword, self).clean(*args, **kwargs)
+
+
+class ResetPasswordForm(forms.Form):
+    # Resetting the user password
+    new_password = forms.CharField(label="New Password:", widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'required': 'required',
+    }))
+    new_password2 = forms.CharField(label="Re-type New Password:", widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'required': 'required',
+    }))
+
+    def clean(self, *args, **kwargs):
+        # Passwords must match and must b
+        new_password = self.cleaned_data.get("new_password")
+        new_password2 = self.cleaned_data.get("new_password2")
+        if len(new_password) < 6:
+            raise forms.ValidationError("Password must be at least 6 characters!")
+        if len(new_password) > 20:
+            raise forms.ValidationError("Password must be max. 20 characters!")
+        if new_password == "" or new_password is None:
+            raise forms.ValidationError("You cannot leave password field empty!")
+        if new_password != new_password2:
+            raise forms.ValidationError("Passwords did not match!")
+        return super(ResetPasswordForm, self).clean(*args, **kwargs)

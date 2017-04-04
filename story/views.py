@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
@@ -15,17 +16,20 @@ from .models import (Story,
                     Vote,
                     CommentLike,
                     Profile,
-                    Notification)
+                    Notification,
+                    Confirmation,
+                    PasswordReset)
 from .forms import (PostStoryForm,
                     LoginForm,
                     SignupForm,
                     SearchPostForm,
                     ProfileEditForm,
                     UserEditForm,
-                    LeaveComment,
-                    ReportStory,
-                    resetPassword,
-                    changePassword,)
+                    CommentForm,
+                    ReportStoryForm,
+                    ForgottenPasswordForm,
+                    ChangePasswordForm,
+                    ResetPasswordForm)
 
 # post per page
 ppp = 10
@@ -165,8 +169,8 @@ def notifications(request):
     }
     return render(request, 'profile/notifications.html', context)
 
-"""
 # TODO: Undone profile system
+"""
 @login_required(redirect_field_name='redirect', login_url='/login')
 def profile(request):
     # Users' profile details
@@ -227,10 +231,10 @@ def story(request, shortcode):
     else:
         comments = False
 
-    commentform = LeaveComment()
+    commentform = CommentForm()
 
     if request.method == 'POST':
-        form = LeaveComment(request.POST)
+        form = CommentForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.post_itself = qs
@@ -340,9 +344,9 @@ def register(request):
         password = form.cleaned_data.get('password')
         new_user.set_password(password)
         new_user.save()
-
         user = authenticate(username=new_user.username, password=password)
         login(request, user)
+        # TODO: add sendmail functions
         return redirect(reverse('editprofilePage'))
 
     latest_f, latest_m, latest_a = latestStories(eptm)
@@ -358,10 +362,10 @@ def register(request):
 @login_required(redirect_field_name='redirect', login_url='/login')
 def changepassword(request):
     # change password
-    form = changePassword()
+    form = ChangePasswordForm()
     user = request.user
     if request.method == "POST":
-        form = changePassword(request.POST)
+        form = ChangePasswordForm(request.POST)
         if form.is_valid():
             old_password = request.POST.get("old_password")
             auth_check = authenticate(username=user, password=old_password)
@@ -398,17 +402,23 @@ def changepassword(request):
     return render(request, 'forms/changepassword.html', context)
 
 
-# TODO: Undone passreminder page
-def resetpassword(request):
+def forgottenpassword(request):
     # password reset page
     if request.user.is_authenticated:
         return redirect(reverse('profilePage'))
-    form = resetPassword(request.POST or None)
+    form = ForgottenPasswordForm(request.POST or None)
     if form.is_valid():
-        #TODO: send mail
-        print("valid")
-        msg = "We have sent you a mail! Check your mailbox and click the link!"
-        messages.success(request, msg)
+        email_addr = request.POST.get("email_addr")
+        user = User.objects.get(email=email_addr)
+        have_key = PasswordReset.objects.filter(user=user)
+        if not have_key:
+            PasswordReset.objects.create(user=user)
+            #TODO: send mail
+            msg = "We have sent you a mail. Please check your mailbox."
+            messages.success(request, msg)
+        else:
+            msg = "We have already sent you a password reset link! Check your mailbox again!"
+            messages.warning(request, msg)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
 
@@ -420,7 +430,7 @@ def resetpassword(request):
         'unread' : False,
         'form' : form,
     }
-    return render(request, 'registration/resetpassword.html', context)
+    return render(request, 'registration/forgottenpassword.html', context)
 
 
 @login_required(redirect_field_name='redirect', login_url='/login')
@@ -616,21 +626,44 @@ def searchpost(request):
 def editprofile(request):
     # edit your user profile
     qs = get_object_or_404(User, username=request.user)
+    email_addr = qs.email # It's for checking email if it's changed
     qs2 = get_object_or_404(Profile, user=request.user)
+
+    # display a message for unconfirmed accounts
+    confirm_status = qs2.confirmed
+    if not confirm_status:
+        msg = "We sent you a confirmation mail. Please confirm your e-mail address."
+        messages.warning(request, msg)
 
     if request.method == 'POST':
         if request.user.is_authenticated:
             form = UserEditForm(request.POST, instance=qs, prefix="formone")
             formtwo = ProfileEditForm(request.POST, instance=qs2, prefix="formtwo")
-            if form.is_valid() and formtwo.is_valid():
+
+            if form.is_valid() and formtwo.is_valid() and confirm_status:
+                email_field = request.POST.get("formone-email")
+                if email_field != email_addr:
+                    f = formtwo.save(commit=False)
+                    f.confirmed = False
+                    f.save()
+                    Confirmation.objects.create(user=request.user)
+                    # TODO: add sendmail functionality
+
+
+                    msg = "You should confirm your e-mail to change you details!"
+                    messages.warning(request, msg)
+                else:
+                    formtwo.save()
                 form.save()
-                formtwo.save()
                 messages.success(request, 'Your Profile has been updated successfully!')
-            else:
-                messages.warning(request, form.errors.as_text())
+            # User must not change details if account is not confirmed yet.
+            elif not confirm_status:
+                msg = "You should confirm your e-mail to change you details!"
+                messages.warning(request, msg)
 
     form = UserEditForm(instance=qs, prefix="formone")
     formtwo = ProfileEditForm(instance=qs2, prefix="formtwo")
+
 
     latest_f, latest_m, latest_a = latestStories(eptm)
     if request.user.is_authenticated:
@@ -688,7 +721,6 @@ def profilepostlist(request, profile):
 
 def toplists(request, cat):
     # most popular posts list.
-    # TODO: Remove cat_name
     if cat == 'mystery':
         stories = Story.objects.filter(category='Mysterious').order_by('-popularity')
         cat_name = 'Mysterious'
@@ -722,6 +754,7 @@ def toplists(request, cat):
         'latest_a' : latest_a,
         'notifications' : notifications,
         'unread' : unread,
+        'cat_name' : cat_name,
     }
     return render(request, 'listing/toplist.html', context)
 
@@ -731,10 +764,10 @@ def report(request, urlcode):
     qs = get_object_or_404(Story, urlcode=urlcode)
     title = qs.title
     reportid = qs.urlcode
-    form = ReportStory()
+    form = ReportStoryForm()
 
     if request.method == 'POST':
-        form = ReportStory(request.POST)
+        form = ReportStoryForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.story = qs
@@ -824,7 +857,7 @@ class StoryVote(View):
         response = {}
         story = Story.objects.get(urlcode=shortcode)
         if self.request.user.is_authenticated:
-            vote_req = self.request.POST.get("bttn") # NOTE: maybe 'self' may cause error
+            vote_req = self.request.POST.get("bttn")
             if vote_req == 'button-up':
                 vote = "Upvote"
             elif vote_req == 'button-down':
@@ -893,7 +926,73 @@ def removevotes(request):
     return HttpResponse("")
 
 
-# TODO: password reset view
-def resetprocess(request):
-    # this method is for resetting the password or e-mail addr of users.
-    return HttpResponse("")
+def confirmation(request, username, securekey):
+    # Confirms the secure key
+    user = get_object_or_404(User, username=username)
+    if request.user.is_authenticated:
+        # if another user is authenticated, redirect to profile edit page
+        if request.user.username != user.username:
+            messages.warning(request, "You can confirm your e-mail address only!")
+        else:
+            qs = Confirmation.objects.filter(user=user)
+            if qs:
+                c = Confirmation.objects.get(user=user)
+                if securekey == c.key:
+                    chng = Profile.objects.get(user=user)
+                    chng.confirmed = True
+                    chng.save()
+                    messages.info(request, "You confirmed your e-mail successfully!")
+                else:
+                    messages.warning(request, "Confirmation key is invalid! Check your link, please!")
+            else:
+                messages.info(request, "Your account is already confirmed!")
+        return redirect(reverse("editprofilePage"))
+    else:
+        p = Profile.objects.get(user=user)
+        if p.confirmed:
+            messages.info(request, "You account is already confirmed! You can login now!")
+        if not p.confirmed:
+            c = Confirmation.objects.get(user=user)
+            if securekey == c.key:
+                p.confirmed = True
+                p.save()
+                messages.info(request, "You confirmed your e-mail successfully! You can login now!")
+            else:
+                messages.warning(request, "Confirmation key is invalid! Check your link, please!")
+        return redirect(reverse("homePage"))
+
+
+def resetpassword(request, username, securekey):
+    # reset user's password if the password is forgotten
+    #redirect to usereditpage
+    if request.user.is_authenticated:
+        return redirect(reverse("editprofilePage"))
+    else:
+        user = get_object_or_404(User, username=username)
+        passreset = PasswordReset.objects.filter(user=user, key=securekey)
+        if passreset:
+            form = ResetPasswordForm(request.POST or None)
+            if form.is_valid():
+                password = form.cleaned_data.get("new_password")
+                user.set_password(password)
+                user.save()
+                passreset.delete()
+                u = authenticate(username=user.username, password=password)
+                login(request, u)
+                messages.info(request, "You changed your password successfully!")
+                return redirect(reverse("editprofilePage"))
+
+            latest_f, latest_m, latest_a = latestStories(eptm)
+
+            context = {
+                'latest_f' : latest_f,
+                'latest_m' : latest_m,
+                'latest_a' : latest_a,
+                'notifications' : False,
+                'unread' : False,
+                'form' : form,
+            }
+            return render(request, 'forms/resetpassword.html', context)
+        else:
+            messages.warning(request, "Your password reset key is invalid!")
+            return redirect(reverse("resetpasswordPage"))
