@@ -17,7 +17,7 @@ urlpatterns = [
     url(r'^login$', views.login_view, name='loginPage'),
     url(r'^logout$', views.logout_view, name='logoutPage'),
     url(r'^register$', views.register, name='registerPage' ),
-    url(r'^resetpassword/$', views.resetpassword, name='resetpasswordPage'),
+    url(r'^forgottenpassword/$', views.forgottenpassword, name='forgottenpasswordPage'),
     url(r'^changepassword/$', views.changepassword, name='changepasswordPage'),
     url(r'^myposts$', views.myposts, name='mypostsPage'),
     url(r'^mycomments$', views.mycomments, name='mycommentsPage'),
@@ -33,6 +33,6 @@ urlpatterns = [
     url(r'^ajax/storyvote/(?P<shortcode>[\w]+)/$', StoryVote.as_view(), name="ajaxstoryvote"),
     url(r'^ajax/commentvote/(?P<shortcode>[\w]+)/$', CommentVote.as_view(), name="ajaxcommentvote"),
     url(r'^ajax/remove/$', views.removevotes, name="removevotes"),
-    url(r'^resetpswd/(?P<username>[a-zA-Z0-9_]+)/(?P<securekey>[a-zA-Z0-9]+)/$', views.resetpswd, name="resetPage"),
+    url(r'^resetpassword/(?P<username>[a-zA-Z0-9_]+)/(?P<securekey>[a-zA-Z0-9]+)/$', views.resetpassword, name="resetpasswordPage"),
     url(r'^confirmation/(?P<username>[a-zA-Z0-9_]+)/(?P<securekey>[a-zA-Z0-9]+)/$', views.confirmation, name="confirmationPage"),
 ]

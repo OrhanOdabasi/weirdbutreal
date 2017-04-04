@@ -17,17 +17,19 @@ from .models import (Story,
                     CommentLike,
                     Profile,
                     Notification,
-                    Confirmation)
+                    Confirmation,
+                    PasswordReset)
 from .forms import (PostStoryForm,
                     LoginForm,
                     SignupForm,
                     SearchPostForm,
                     ProfileEditForm,
                     UserEditForm,
-                    LeaveComment,
-                    ReportStory,
-                    resetPassword,
-                    changePassword,)
+                    CommentForm,
+                    ReportStoryForm,
+                    ForgottenPasswordForm,
+                    ChangePasswordForm,
+                    ResetPasswordForm)
 
 # post per page
 ppp = 10
@@ -229,10 +231,10 @@ def story(request, shortcode):
     else:
         comments = False
 
-    commentform = LeaveComment()
+    commentform = CommentForm()
 
     if request.method == 'POST':
-        form = LeaveComment(request.POST)
+        form = CommentForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.post_itself = qs
@@ -360,10 +362,10 @@ def register(request):
 @login_required(redirect_field_name='redirect', login_url='/login')
 def changepassword(request):
     # change password
-    form = changePassword()
+    form = ChangePasswordForm()
     user = request.user
     if request.method == "POST":
-        form = changePassword(request.POST)
+        form = ChangePasswordForm(request.POST)
         if form.is_valid():
             old_password = request.POST.get("old_password")
             auth_check = authenticate(username=user, password=old_password)
@@ -400,22 +402,23 @@ def changepassword(request):
     return render(request, 'forms/changepassword.html', context)
 
 
-# TODO: Undone passreminder page
-def resetpassword(request):
+def forgottenpassword(request):
     # password reset page
     if request.user.is_authenticated:
         return redirect(reverse('profilePage'))
-    form = resetPassword(request.POST or None)
+    form = ForgottenPasswordForm(request.POST or None)
     if form.is_valid():
         email_addr = request.POST.get("email_addr")
         user = User.objects.get(email=email_addr)
-        have_key = Confirmation.objects.filter(user=user)
+        have_key = PasswordReset.objects.filter(user=user)
         if not have_key:
-            Confirmation.objects.create(user=user)
-        #TODO: send mail
-
-        msg = "We have sent you a mail. Please check your mailbox."
-        messages.success(request, msg)
+            PasswordReset.objects.create(user=user)
+            #TODO: send mail
+            msg = "We have sent you a mail. Please check your mailbox."
+            messages.success(request, msg)
+        else:
+            msg = "We have already sent you a password reset link! Check your mailbox again!"
+            messages.warning(request, msg)
 
     latest_f, latest_m, latest_a = latestStories(eptm)
 
@@ -427,7 +430,7 @@ def resetpassword(request):
         'unread' : False,
         'form' : form,
     }
-    return render(request, 'registration/resetpassword.html', context)
+    return render(request, 'registration/forgottenpassword.html', context)
 
 
 @login_required(redirect_field_name='redirect', login_url='/login')
@@ -718,7 +721,6 @@ def profilepostlist(request, profile):
 
 def toplists(request, cat):
     # most popular posts list.
-    # TODO: Remove cat_name
     if cat == 'mystery':
         stories = Story.objects.filter(category='Mysterious').order_by('-popularity')
         cat_name = 'Mysterious'
@@ -752,6 +754,7 @@ def toplists(request, cat):
         'latest_a' : latest_a,
         'notifications' : notifications,
         'unread' : unread,
+        'cat_name' : cat_name,
     }
     return render(request, 'listing/toplist.html', context)
 
@@ -761,10 +764,10 @@ def report(request, urlcode):
     qs = get_object_or_404(Story, urlcode=urlcode)
     title = qs.title
     reportid = qs.urlcode
-    form = ReportStory()
+    form = ReportStoryForm()
 
     if request.method == 'POST':
-        form = ReportStory(request.POST)
+        form = ReportStoryForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.story = qs
@@ -854,7 +857,7 @@ class StoryVote(View):
         response = {}
         story = Story.objects.get(urlcode=shortcode)
         if self.request.user.is_authenticated:
-            vote_req = self.request.POST.get("bttn") # NOTE: maybe 'self' may cause error
+            vote_req = self.request.POST.get("bttn")
             if vote_req == 'button-up':
                 vote = "Upvote"
             elif vote_req == 'button-down':
@@ -959,7 +962,37 @@ def confirmation(request, username, securekey):
         return redirect(reverse("homePage"))
 
 
-# TODO: reset password view undone
-def resetpswd(request):
-    # reset user's password and redirect to usereditpage
-    return HttpResponse("")
+def resetpassword(request, username, securekey):
+    # reset user's password if the password is forgotten
+    #redirect to usereditpage
+    if request.user.is_authenticated:
+        return redirect(reverse("editprofilePage"))
+    else:
+        user = get_object_or_404(User, username=username)
+        passreset = PasswordReset.objects.filter(user=user, key=securekey)
+        if passreset:
+            form = ResetPasswordForm(request.POST or None)
+            if form.is_valid():
+                password = form.cleaned_data.get("new_password")
+                user.set_password(password)
+                user.save()
+                passreset.delete()
+                u = authenticate(username=user.username, password=password)
+                login(request, u)
+                messages.info(request, "You changed your password successfully!")
+                return redirect(reverse("editprofilePage"))
+
+            latest_f, latest_m, latest_a = latestStories(eptm)
+
+            context = {
+                'latest_f' : latest_f,
+                'latest_m' : latest_m,
+                'latest_a' : latest_a,
+                'notifications' : False,
+                'unread' : False,
+                'form' : form,
+            }
+            return render(request, 'forms/resetpassword.html', context)
+        else:
+            messages.warning(request, "Your password reset key is invalid!")
+            return redirect(reverse("resetpasswordPage"))

@@ -28,7 +28,7 @@
 [REMOVED] key generating for forgotten password
 [REMOVED] add confirmation model instance when confirmed status is changed
 [REMOVED] confirmation functionality
-[PROGRESS] password reset functionality
+[REMOVED] password reset functionality
 sendmail functionality
 keep statistics for visitors
 add a proper readme file with venv, django, heroku instructions
