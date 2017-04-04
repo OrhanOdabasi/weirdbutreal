@@ -82,6 +82,9 @@ class Vote(models.Model):
     )
     vote = models.CharField(choices=choices, max_length=10, verbose_name='Vote')
 
+    def __str__(self):
+        return "{story} was voted as {vote}".format(story=self.story, vote=self.vote)
+
 
 class StoryComment(models.Model):
 

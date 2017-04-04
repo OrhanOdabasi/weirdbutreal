@@ -21,7 +21,6 @@
 [REMOVED] Password update page
 [REMOVED] add birthday and gender field to profile edit page
 [REMOVED] add active class for link items in profile menu
-[DELAYED] Set database time to UTC and convert them in template
 [REMOVED] upvotes and downvotes should have in the same table
 [REMOVED] email confirmation when user signs up
 [REMOVED] Email confirmation when field was changed
@@ -29,7 +28,8 @@
 [REMOVED] add confirmation model instance when confirmed status is changed
 [REMOVED] confirmation functionality
 [REMOVED] password reset functionality
-sendmail functionality
+[REMOVED] Vote list admin panel list name problem
+[REMOVED] sendmail functionality
 keep statistics for visitors
 add a proper readme file with venv, django, heroku instructions
 push to github
@@ -41,3 +41,4 @@ add a proper bugfix list
 [LATER] last 2 voters can be shown to users in single post menu
 [LATER] Admin panel is not very suitable for listing models' objects.
 [LATER] Button should response faster.
+[DELAYED] Set database time to UTC and convert them in template

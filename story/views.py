@@ -346,7 +346,6 @@ def register(request):
         new_user.save()
         user = authenticate(username=new_user.username, password=password)
         login(request, user)
-        # TODO: add sendmail functions
         return redirect(reverse('editprofilePage'))
 
     latest_f, latest_m, latest_a = latestStories(eptm)
@@ -413,7 +412,7 @@ def forgottenpassword(request):
         have_key = PasswordReset.objects.filter(user=user)
         if not have_key:
             PasswordReset.objects.create(user=user)
-            #TODO: send mail
+            # A signal is sent for sending email
             msg = "We have sent you a mail. Please check your mailbox."
             messages.success(request, msg)
         else:

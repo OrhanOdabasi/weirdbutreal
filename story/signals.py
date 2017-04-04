@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from story.models import Vote, CommentLike, Notification, StoryComment, User, Profile, Confirmation
+from story.models import Vote, CommentLike, Notification, StoryComment, User, Profile, Confirmation, PasswordReset
+from story import mails
 
 @receiver(post_save, sender=Vote)
 def upvote_notifier(sender, created, instance, **kwargs):
@@ -84,14 +85,39 @@ def profile_details(sender, created, instance, **kwargs):
 def create_confirmation(sender, created, instance, **kwargs):
     # it triggers confirmation model to create a key for the user
     user = instance.user
+    sending_mail = False
     if created:
         q = Confirmation(user=user)
         q.save()
+        sending_mail = True
     else:
         if not instance.confirmed:
             q = Confirmation(user=user)
             q.save()
+            sending_mail = True
         else:
             qs = Confirmation.objects.filter(user=user)
             if qs:
                 qs.delete()
+    # With the user 'created' signal send an email to each user
+    if sending_mail:
+        try:
+            owner = str(q.user.username)
+            to_email = q.user.email
+            response = mails.sendconfirmation(owner=owner, to_email=to_email)
+            print(response.status_code)
+        except Exception as e:
+            print(e)
+
+
+@receiver(post_save, sender=PasswordReset)
+def passwordreset_sender(sender, instance, **kwargs):
+    # Email sender for forgotten password
+    user = instance.user
+    try:
+        owner = str(user.username)
+        to_email = user.email
+        response = mails.sendconfirmation(owner=owner, to_email=to_email)
+        print(response.status_code)
+    except Exception as e:
+        print(e)
