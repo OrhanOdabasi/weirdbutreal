@@ -116,18 +116,19 @@ def create_confirmation(sender, created, instance, **kwargs):
 
 
 @receiver(post_save, sender=PasswordReset)
-def passwordreset_sender(sender, instance, **kwargs):
+def passwordreset_sender(sender, created, instance, **kwargs):
     # Email sender for forgotten password
     user = instance.user
-    try:
-        owner = str(user.username)
-        to_email = user.email
-        key = instance.key
-        infos = """
-        Username: {username}
-        link: http://www.weirdbutreal.com/resetpassword/{username}/{key}
-        """.format(username=owner, key=key)
-        response = mails.sendpasswordreset(owner=owner, to_email=to_email, infos=infos)
-        print(response.status_code)
-    except Exception as e:
-        print(e)
+    if created:
+        try:
+            owner = str(user.username)
+            to_email = user.email
+            key = instance.key
+            infos = """
+            Username: {username}
+            link: http://www.weirdbutreal.com/resetpassword/{username}/{key}
+            """.format(username=owner, key=key)
+            response = mails.sendpasswordreset(owner=owner, to_email=to_email, infos=infos)
+            print(response.status_code)
+        except Exception as e:
+            print(e)

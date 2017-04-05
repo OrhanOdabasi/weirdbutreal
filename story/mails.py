@@ -33,7 +33,7 @@ If you don't remember your password, click the link below to reset it.
 def sendpasswordreset(owner, to_email, infos, from_email=reset_sender, subject=reset_subject, content=reset_content):
     # Sending password reset mail
     from_email =Email(from_email)
-    to_mail = Email(to_mail)
+    to_email = Email(to_email)
     subject = owner + subject
     content = Content("text/plain", content + infos)
     mail = Mail(from_email, subject, to_email, content)
