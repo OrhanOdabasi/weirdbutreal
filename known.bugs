@@ -32,9 +32,11 @@
 [REMOVED] sendmail functionality
 [REMOVED] add mail delay warning to user
 [REMOVED] reset and confirmation keys are not added to mails
+[REMOVED] Vote model and story model updated for admin panel
+[REMOVED] keep statistics for visitors
+[REMOVED] About menu spelling error fixed
 popularity algorithm is not set
 seo modifications are not set
-keep statistics for visitors
 add a proper readme file with venv, django, heroku instructions
 push to github
 add a proper bugfix list

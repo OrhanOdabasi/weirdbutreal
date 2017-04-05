@@ -23,7 +23,7 @@ class Story(models.Model):
     )
     category = models.CharField(choices=categories, max_length=15, verbose_name='Category')
     languages = (
-        ('En', 'English'),
+        ('English', 'English'),
     )
     language = models.CharField(choices=languages, max_length=10, verbose_name='Language')
     popularity = models.IntegerField(default=0, verbose_name='Popularity')
@@ -76,8 +76,8 @@ class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     story = models.ForeignKey(Story, on_delete=models.CASCADE)
     choices = (
-        ('Up', 'Upvote'),
-        ('Down', 'Downvote'),
+        ('Upvote', 'Upvote'),
+        ('Downvote', 'Downvote'),
     )
     vote = models.CharField(choices=choices, max_length=10, verbose_name='Vote')
 
