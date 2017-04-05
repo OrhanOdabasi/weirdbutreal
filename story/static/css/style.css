@@ -101,12 +101,12 @@ nav.navbar-findcond span.badge.new {
 
 body {
   background: #fff;
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-size: 16px;
 }
 
 p {
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-size: 16px;
 }
 
@@ -145,7 +145,7 @@ div.right-container {
 
 div.post-container {
   margin: 0 0 20px;
-  padding: 5px 5px 20px;
+  padding: 5px 5px 0;
 
 }
 
@@ -176,7 +176,7 @@ h1.post-headline {
 }
 
 div.post-content {
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'PT Sans', sans-serif;
   font-size: 18px;
   line-height: 140%;
   min-height: 75px;
@@ -291,7 +291,7 @@ span#headline-list {
 }
 
 li > a.hdlines {
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'PT Sans', sans-serif;
   color: black;
 }
 
