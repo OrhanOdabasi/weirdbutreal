@@ -30,6 +30,10 @@
 [REMOVED] password reset functionality
 [REMOVED] Vote list admin panel list name problem
 [REMOVED] sendmail functionality
+[REMOVED] add mail delay warning to user
+[REMOVED] reset and confirmation keys are not added to mails
+popularity algorithm is not set
+seo modifications are not set
 keep statistics for visitors
 add a proper readme file with venv, django, heroku instructions
 push to github

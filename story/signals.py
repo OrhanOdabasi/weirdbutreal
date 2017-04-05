@@ -99,12 +99,17 @@ def create_confirmation(sender, created, instance, **kwargs):
             qs = Confirmation.objects.filter(user=user)
             if qs:
                 qs.delete()
-    # With the user 'created' signal send an email to each user
+    # With the user's 'created' signal, sends an email to each user
     if sending_mail:
         try:
             owner = str(q.user.username)
             to_email = q.user.email
-            response = mails.sendconfirmation(owner=owner, to_email=to_email)
+            key = q.key
+            infos = """
+            Username: {username}
+            link: http://www.weirdbutreal.com/confirmation/{username}/{key}
+            """.format(username=owner, key=key)
+            response = mails.sendconfirmation(owner=owner, to_email=to_email, infos=infos)
             print(response.status_code)
         except Exception as e:
             print(e)
@@ -117,7 +122,12 @@ def passwordreset_sender(sender, instance, **kwargs):
     try:
         owner = str(user.username)
         to_email = user.email
-        response = mails.sendconfirmation(owner=owner, to_email=to_email)
+        key = instance.key
+        infos = """
+        Username: {username}
+        link: http://www.weirdbutreal.com/resetpassword/{username}/{key}
+        """.format(username=owner, key=key)
+        response = mails.sendpasswordreset(owner=owner, to_email=to_email, infos=infos)
         print(response.status_code)
     except Exception as e:
         print(e)

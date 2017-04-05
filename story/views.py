@@ -414,7 +414,8 @@ def forgottenpassword(request):
             PasswordReset.objects.create(user=user)
             # A signal is sent for sending email
             msg = "We have sent you a mail. Please check your mailbox."
-            messages.success(request, msg)
+            msg1 = "It may take some time to be delivered. Don't panic:)"
+            messages.success(request, msg+msg1)
         else:
             msg = "We have already sent you a password reset link! Check your mailbox again!"
             messages.warning(request, msg)
@@ -631,8 +632,9 @@ def editprofile(request):
     # display a message for unconfirmed accounts
     confirm_status = qs2.confirmed
     if not confirm_status:
-        msg = "We sent you a confirmation mail. Please confirm your e-mail address."
-        messages.warning(request, msg)
+        msg = "We sent you a confirmation mail. Please confirm your e-mail address. "
+        msg1 = "It may take some time to be delivered. Don't panic:)"
+        messages.warning(request, msg+msg1)
 
     if request.method == 'POST':
         if request.user.is_authenticated:
@@ -646,9 +648,6 @@ def editprofile(request):
                     f.confirmed = False
                     f.save()
                     Confirmation.objects.create(user=request.user)
-                    # TODO: add sendmail functionality
-
-
                     msg = "You should confirm your e-mail to change you details!"
                     messages.warning(request, msg)
                 else:
