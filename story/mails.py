@@ -3,7 +3,6 @@ import os
 from sendgrid.helpers.mail import *
 
 # this file includes mail functions to send confirm and reset keys to users
-# sendgrid_api = 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
 sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
 
 confirmation_sender = "confirmation@weirdbutreal.com"

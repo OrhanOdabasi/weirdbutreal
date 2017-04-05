@@ -24,7 +24,6 @@ class Story(models.Model):
     category = models.CharField(choices=categories, max_length=15, verbose_name='Category')
     languages = (
         ('En', 'English'),
-        ('Tr', 'Turkish')
     )
     language = models.CharField(choices=languages, max_length=10, verbose_name='Language')
     popularity = models.IntegerField(default=0, verbose_name='Popularity')
