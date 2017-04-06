@@ -35,6 +35,7 @@
 [REMOVED] Vote model and story model updated for admin panel
 [REMOVED] keep statistics for visitors
 [REMOVED] About menu spelling error fixed
+[REMOVED] add more pagination links
 popularity algorithm is not set
 seo modifications are not set
 add a proper readme file with venv, django, heroku instructions
@@ -43,7 +44,6 @@ add a proper bugfix list
 [LATER] notificationsPage is loading slowly
 [LATER] add lazy load functionality for website list pages
 [LATER] MultiLanguage Configuration for the site
-[LATER] add more pagination links
 [LATER] last 2 voters can be shown to users in single post menu
 [LATER] Admin panel is not very suitable for listing models' objects.
 [LATER] Button should response faster.
