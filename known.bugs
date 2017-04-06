@@ -39,16 +39,15 @@
 [REMOVED] popularity algorithm is not set
 [REMOVED] active deactive option returns error
 [REMOVED] search page warning box floating search button
+[REMOVED] Button should response faster.
 add custom 404 page
 search engine searching in "" so its searchin whole phrase, no results
 seo modifications are not set
 add a proper readme file with venv, django, heroku instructions
-push to github
-add a proper bugfix list
-[LATER] notificationsPage is loading slowly
+Bug report system should be added
 [LATER] add lazy load functionality for website list pages
 [LATER] MultiLanguage Configuration for the site
 [LATER] last 2 voters can be shown to users in single post menu
 [LATER] Admin panel is not very suitable for listing models' objects.
-[LATER] Button should response faster.
+[LATER] notificationsPage is loading slowly
 [DELAYED] Set database time to UTC and convert them in template
