@@ -36,7 +36,9 @@
 [REMOVED] keep statistics for visitors
 [REMOVED] About menu spelling error fixed
 [REMOVED] add more pagination links
-popularity algorithm is not set
+[REMOVED] popularity algorithm is not set
+search engine searching in "" so its searchin whole phrase, no results
+active deactive option returns error
 seo modifications are not set
 add a proper readme file with venv, django, heroku instructions
 push to github

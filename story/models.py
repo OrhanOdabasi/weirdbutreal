@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from datetime import datetime
 from story.resetkey import secure_key
+from django.db.models import F
 
 
 class Story(models.Model):
@@ -84,6 +85,29 @@ class Vote(models.Model):
     def __str__(self):
         return "{story} was voted as {vote}".format(story=self.story, vote=self.vote)
 
+    def save(self, *args, **kwargs):
+        # Change popularity of related post while saving
+        if not __class__.objects.filter(user=self.user, story=self.story):
+            if self.vote == "Upvote":
+                Story.objects.filter(pk=self.story.pk).update(popularity=F('popularity')+3)
+            elif self.vote == "Downvote":
+                Story.objects.filter(pk=self.story.pk).update(popularity=F('popularity')-2)
+        else:
+            if self.vote == "Upvote":
+                Story.objects.filter(pk=self.story.pk).update(popularity=F('popularity')+5)
+            elif self.vote == "Downvote":
+                Story.objects.filter(pk=self.story.pk).update(popularity=F('popularity')-5)
+        super(Vote, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Change popularity of related post while saving
+        print("dfsdf")
+        if self.vote == "Upvote":
+            Story.objects.filter(pk=self.story.pk).update(popularity=F('popularity')-3)
+        elif self.vote == "Downvote":
+            Story.objects.filter(pk=self.story.pk).update(popularity=F('popularity')+2)
+        super(Vote, self).delete(*args, **kwargs)
+
 
 class StoryComment(models.Model):
 
@@ -95,11 +119,22 @@ class StoryComment(models.Model):
     post_itself = models.ForeignKey(Story, on_delete=models.CASCADE, verbose_name='Post')
     commentator = models.ForeignKey(User, verbose_name='Commentator')
     comment = models.TextField(max_length=250, verbose_name='Comment')
-    likes = models.IntegerField(default=0, verbose_name='Likes')
     comment_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return "{storycode} - {comment_id}".format(storycode=self.post_itself.title, comment_id=self.pk)
+
+    def save(self, *args, **kwargs):
+        # If user comments on the story for the first time, change popularity by 2
+        if not __class__.objects.filter(commentator=self.commentator, post_itself=self.post_itself):
+            Story.objects.filter(pk=self.post_itself.pk).update(popularity=F('popularity')+2)
+        super(StoryComment, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # If user deletes his/her last comment on the story, change popularity by -2
+        if __class__.objects.filter(commentator=self.commentator, post_itself=self.post_itself).count() == 1:
+            Story.objects.filter(pk=self.post_itself.pk).update(popularity=F('popularity')-2)
+        super(StoryComment, self).delete(*args, **kwargs)
 
 
 class CommentLike(models.Model):
@@ -114,6 +149,17 @@ class CommentLike(models.Model):
 
     def __str__(self):
         return "{story} - {comment} - {user}".format(story=self.comment.post_itself.urlcode, comment=self.comment.pk, user=self.user.username)
+
+    def save(self, *args, **kwargs):
+        # If any user likes any comment of the post, change popularity of the post by +1
+        Story.objects.filter(pk=self.comment.post_itself.pk).update(popularity=F('popularity')+1)
+        super(CommentLike, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        print("dfsdfdfsdfsdf")
+        # If any user dislikes any comment of the post, change popularity of the post by -1
+        Story.objects.filter(pk=self.comment.post_itself.pk).update(popularity=F('popularity')-1)
+        super(CommentLike, self).delete(*args, **kwargs)
 
 
 class Profile(models.Model):

@@ -14,7 +14,7 @@
           $.ajax({
             type: "POST",
             url: '{% url 'removevotes' %}',
-            data: {datacat: 'storydownvote', urlcode: urlcode, csrfmiddlewaretoken: '{{ csrf_token }}'},
+            data: {datacat: 'storydownvote', datacode: urlcode, csrfmiddlewaretoken: '{{ csrf_token }}'},
             success: function(){
               console.log("successful");
             }

@@ -861,9 +861,13 @@ class StoryVote(View):
             elif vote_req == 'button-down':
                 vote = "Downvote"
             user = self.request.user
-            defaults = {'vote' : vote}
-            obj, created = Vote.objects.update_or_create(user=user, story=story, defaults=defaults)
-            response["response"] = obj.vote
+            qs = Vote.objects.filter(user=user, story=story, vote=vote)
+            if qs:
+                response["response"] = "VotedAlready"
+            else:
+                defaults = {'vote' : vote}
+                obj, created = Vote.objects.update_or_create(user=user, story=story, defaults=defaults)
+                response["response"] = obj.vote
         else:
             response["response"] = "NotAuthenticated"
         return JsonResponse(response)
@@ -893,7 +897,7 @@ class CommentVote(View):
             complike = CommentLike.objects.filter(comment=comment, user=user)
 
             if complike.exists():
-                complike.delete()
+                complike.first().delete()
                 response["resp"] = "removed"
             else:
                 CommentLike.objects.create(user=user, comment=comment)
@@ -907,19 +911,19 @@ class CommentVote(View):
 def removevotes(request):
     # removes the vote or like objects in profile menu
     datacat = request.POST.get("datacat")
-    urlcode = request.POST.get("urlcode")
+    datacode = request.POST.get("datacode")
     user = request.user
 
     if datacat == 'storyupvote':
-        story = Story.objects.filter(urlcode=urlcode)
-        q = Vote.objects.filter(user=user, story=story, vote='Upvote')
+        story = Story.objects.filter(urlcode=datacode)
+        q = Vote.objects.get(user=user, story=story, vote='Upvote')
         if q: q.delete()
     elif datacat == 'storydownvote':
-        story = Story.objects.filter(urlcode=urlcode)
-        q = Vote.objects.filter(user=user, story=story, vote="Downvote")
+        story = Story.objects.filter(urlcode=datacode)
+        q = Vote.objects.get(user=user, story=story, vote="Downvote")
         if q: q.delete()
     elif datacat == 'comment':
-        q = StoryComment.objects.filter(pk=datacode, commentator=user)
+        q = StoryComment.objects.get(pk=datacode, commentator=user)
         if q: q.delete()
     return HttpResponse("")
 
