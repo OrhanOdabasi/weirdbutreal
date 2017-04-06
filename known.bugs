@@ -37,8 +37,10 @@
 [REMOVED] About menu spelling error fixed
 [REMOVED] add more pagination links
 [REMOVED] popularity algorithm is not set
+[REMOVED] active deactive option returns error
+search page warning box floating search button
+add custom 404 page
 search engine searching in "" so its searchin whole phrase, no results
-active deactive option returns error
 seo modifications are not set
 add a proper readme file with venv, django, heroku instructions
 push to github

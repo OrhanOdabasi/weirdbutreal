@@ -38,9 +38,9 @@ ppp = 10
 eptm = 5
 def latestStories(eptm):
     # Create your views here.
-    latest_f = Story.objects.filter(category="Funny").order_by("-popularity")[:eptm]
-    latest_m = Story.objects.filter(category="Mysterious").order_by("-popularity")[:eptm]
-    latest_a = Story.objects.all().order_by("-popularity")[:eptm]
+    latest_f = Story.objects.filter(category="Funny", active=True).order_by("-popularity")[:eptm]
+    latest_m = Story.objects.filter(category="Mysterious", active=True).order_by("-popularity")[:eptm]
+    latest_a = Story.objects.filter(active=True).order_by("-popularity")[:eptm]
     return latest_f, latest_m, latest_a
 
 
@@ -54,7 +54,7 @@ def getNotifications(user, last):
 
 def homepage(request):
     # Home Page
-    stories = Story.objects.all().order_by("-created")
+    stories = Story.objects.filter(active=True).order_by("-created")
     paginator = Paginator(stories, ppp)
     page = request.GET.get('page')
 
@@ -85,7 +85,7 @@ def homepage(request):
 
 def funny(request):
     # Funny section of the site
-    stories = Story.objects.filter(category='Funny').order_by("-modified")
+    stories = Story.objects.filter(category='Funny', active=True).order_by("-modified")
     paginator = Paginator(stories, ppp)
     page = request.GET.get('page')
 
@@ -116,7 +116,7 @@ def funny(request):
 
 def mysterious(request):
     # Mystery section of the site
-    stories = Story.objects.filter(category='Mysterious').order_by("-modified")
+    stories = Story.objects.filter(category='Mysterious', active=True).order_by("-modified")
     paginator = Paginator(stories, ppp)
     page = request.GET.get('page')
 
@@ -222,12 +222,12 @@ def about(request):
 
 def story(request, shortcode):
     # Story Page
-    qs = get_object_or_404(Story, urlcode=shortcode)
+    qs = get_object_or_404(Story, urlcode=shortcode, active=True)
     comment_count = qs.storycomment_set.count()
     if qs.storycomment_set:
         # list comments
         comments = qs.storycomment_set.all().annotate(topvotes=Count('commentlike'))
-        comments= comments.order_by('-topvotes', '-comment_date')
+        comments = comments.order_by('-topvotes', '-comment_date')
     else:
         comments = False
 
@@ -438,7 +438,7 @@ def myposts(request):
     # users' post list
     if request.user.is_authenticated:
         qs = get_object_or_404(User, username=request.user)
-        story_list = qs.story_set.all().order_by('-modified')
+        story_list = qs.story_set.filter(active=True).order_by('-modified')
     else:
         return redirect(reverse('loginPage'))
 
@@ -582,7 +582,8 @@ def searchpost(request):
         form = SearchPostForm(initial={'searchq': query})
         story_list = Story.objects.filter(
             Q(title__icontains=query)|
-            Q(text__icontains=query)
+            Q(text__icontains=query)&
+            Q(active=True)
         ).order_by("-created").distinct()
 
         paginator = Paginator(story_list, ppp)
@@ -686,7 +687,7 @@ def profilepostlist(request, profile):
     # post list of an author, it will list when post author link is clicked
     if request.user.is_authenticated:
         qs = get_object_or_404(User, username=profile)
-        story_list = qs.story_set.all().order_by('-modified')
+        story_list = qs.story_set.filter(active=True).order_by('-modified')
     else:
         return redirect(reverse('loginPage'))
 
@@ -720,13 +721,13 @@ def profilepostlist(request, profile):
 def toplists(request, cat):
     # most popular posts list.
     if cat == 'mystery':
-        stories = Story.objects.filter(category='Mysterious').order_by('-popularity')
+        stories = Story.objects.filter(category='Mysterious', active=True).order_by('-popularity')
         cat_name = 'Mysterious'
     elif cat == 'weirdests':
-        stories = Story.objects.all().order_by('-popularity')
+        stories = Story.objects.filter(active=True).order_by('-popularity')
         cat_name = 'Weirdests'
     elif cat == 'fun':
-        stories = Story.objects.filter(category='Funny').order_by('-popularity')
+        stories = Story.objects.filter(category='Funny', active=True).order_by('-popularity')
         cat_name = 'Funny'
 
     paginator = Paginator(stories, ppp)
@@ -759,7 +760,7 @@ def toplists(request, cat):
 
 def report(request, urlcode):
     # report post form
-    qs = get_object_or_404(Story, urlcode=urlcode)
+    qs = get_object_or_404(Story, urlcode=urlcode, active=True)
     title = qs.title
     reportid = qs.urlcode
     form = ReportStoryForm()
@@ -797,7 +798,7 @@ def report(request, urlcode):
 @login_required(redirect_field_name='redirect', login_url='/login')
 def deleteconfirm(request, shortcode):
     # confirmation for delete process
-    post = get_object_or_404(Story, urlcode=shortcode)
+    post = get_object_or_404(Story, urlcode=shortcode, active=True)
     if not post.author == request.user:
         messages.warning(request, "You are not authorised for deleting the post.")
         return redirect(reverse('storyPage', kwargs={'shortcode': shortcode}))
@@ -827,7 +828,7 @@ def deletepost(request):
         form = request.POST
         confirmcheck = form.get('confirm')
         shortcode = form.get('shortcode')
-        qs = get_object_or_404(Story, urlcode=shortcode)
+        qs = get_object_or_404(Story, urlcode=shortcode, active=True)
         if confirmcheck == 'confirmed' and qs:
             qs.delete()
             messages.success(request, 'Successfully deleted the story from the database!')
@@ -842,7 +843,7 @@ class StoryVote(View):
     def get(self, request, shortcode, *args, **kwargs):
         # retrieve users vote data
         response = {}
-        story = Story.objects.get(urlcode=shortcode)
+        story = Story.objects.get(urlcode=shortcode, active=True)
         try:
             vote_status = Vote.objects.get(user=self.request.user, story=story)
             response["vote_status"] = vote_status.vote
@@ -853,7 +854,7 @@ class StoryVote(View):
     def post(self, request, shortcode, *args, **kwargs):
         #post request for upvote-model update
         response = {}
-        story = Story.objects.get(urlcode=shortcode)
+        story = Story.objects.get(urlcode=shortcode, active=True)
         if self.request.user.is_authenticated:
             vote_req = self.request.POST.get("bttn")
             if vote_req == 'button-up':
@@ -877,7 +878,7 @@ class CommentVote(View):
 
     def get(self, request, shortcode, *args, **kwargs):
         commentlikes = []
-        story = Story.objects.get(urlcode=shortcode)
+        story = Story.objects.get(urlcode=shortcode, active=True)
         comments = story.storycomment_set.all()
         for comment in comments:
             count = comment.commentlike_set.filter(user=self.request.user)
@@ -889,7 +890,7 @@ class CommentVote(View):
     def post(self, request, shortcode, *args, **kwargs):
         # post request for comment like button
         response = {}
-        story = Story.objects.get(urlcode=shortcode)
+        story = Story.objects.get(urlcode=shortcode, active=True)
         compk = self.request.POST.get("compk")
         if self.request.user.is_authenticated:
             comment = StoryComment.objects.get(id=compk)
@@ -915,12 +916,18 @@ def removevotes(request):
     user = request.user
 
     if datacat == 'storyupvote':
-        story = Story.objects.filter(urlcode=datacode)
-        q = Vote.objects.get(user=user, story=story, vote='Upvote')
+        story = Story.objects.filter(urlcode=datacode, active=True)
+        try:
+            q = Vote.objects.get(user=user, story=story, vote='Upvote')
+        except:
+            q = False
         if q: q.delete()
     elif datacat == 'storydownvote':
-        story = Story.objects.filter(urlcode=datacode)
-        q = Vote.objects.get(user=user, story=story, vote="Downvote")
+        story = Story.objects.filter(urlcode=datacode, active=True)
+        try:
+            q = Vote.objects.get(user=user, story=story, vote="Downvote")
+        except:
+            q = False
         if q: q.delete()
     elif datacat == 'comment':
         q = StoryComment.objects.get(pk=datacode, commentator=user)
